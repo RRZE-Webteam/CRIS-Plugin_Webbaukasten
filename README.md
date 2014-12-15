@@ -33,7 +33,7 @@ Einbinden von Daten aus der Forschungsdatenbank CRIS in Webseiten
   <code>Zeige_Publikationen        1   #Publikationsliste in Personen-Detail-Ansicht anzeigen? 1=ja, 0=nein</code><br />
   <code>Zeige_Auszeichnungen        1   #Auszeichnungen in Personen-Detail-Ansicht anzeigen? 1=ja, 0=nein</code><br />
   <code>Pfad_Personenseite        /cris/person.shtml   #für Links von Publikations- und Mitarbeiterlisten auf Personen-Detailseite</code><br />
-  <code>Cache_Zeit        18000   #Gültigkeitsdauer der Cache-Dateien in Sekunden</code>
+  <code>Cache_Zeit        18000   #Gültigkeitsdauer der Cache-Dateien in Sekunden</code><br />
   <code>Ignoriere_Jobs	FoDa-Administrator/in|Andere	#Funktionen, die im Organigramm nicht aufgef&uuml;hrt werden sollen</code>
 - Cache
 - Suche der CRIS-OrgNr anhand der FAU-OrgNr
