@@ -17,7 +17,7 @@ if ($options['Zeige_Auszeichnungen'] == '1') {
 
 if ($options['Zeige_Publikationen'] == '1') {
 	echo "<h3>Publikationen</h3>";
-	$liste = new Publikationsliste();
+	$liste = new Publikationsliste("person");
 	$liste->liste();
 }
 

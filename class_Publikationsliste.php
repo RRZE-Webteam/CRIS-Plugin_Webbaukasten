@@ -4,13 +4,21 @@ require_once('class_cris.php');
 
 class Publikationsliste {
 
-	public function __construct() {
+	public function __construct($einheit) {
 		$getoptions = new CRIS();
 		$options = $getoptions->options;
 		$orgNr = $options['CRISOrgNr'];
 		$this->pathPersonenseite = $options['Pfad_Personenseite'];
-		$this->suchstring = "http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getautorelated/Organisation/" . $orgNr . "/ORGA_2_PUBL_1"; //141440
 
+		switch ($einheit) {
+			case "person" : //Publikationsliste nach Card (für Personendetailseite)
+				$this->url = explode('/',$_SERVER['REQUEST_URI']);
+				$this->ID = $this->url[count($this->url)-1]; //letztes Element der URL (161182)
+				$this->suchstring = 'http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getrelated/Card/' . $this->ID . '/Publ_has_CARD';
+				break;
+			default: // keine Einheit angegeben -> OrgNr verwenden
+				$this->suchstring = "http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getautorelated/Organisation/" . $orgNr . "/ORGA_2_PUBL_1"; //141440
+		}
 		/*$this->url = explode('/',$_SERVER['REQUEST_URI']);
 		$this->param = $this->url[count($this->url)-1]; //letztes Element der URL (p_161182)
 		$this->elements = explode("_",$this->param); //letzes Element splitten in Einheit (p) und ID (161182)
@@ -554,20 +562,21 @@ class Publikationsliste {
 			case "Conference contribution":
 				echo ((($pubDetails['conference'] != '') || ($pubDetails['publisher'] != '')) ? "<br />" : '');
 				echo ($pubDetails['conference'] !='' ? $pubDetails['conference'] : '');
-				echo ($pubDetails['publisher'] !='' ? ", " . $pubDetails['publisher'] : '');
-				echo ((($pubDetails['city'] != '') || ($year != '')) ? "<br />" : '');
+				echo ((($pubDetails['conference'] != '') && ($pubDetails['publisher'] != '')) ? ", " : '');
+				echo ($pubDetails['publisher'] !='' ? $pubDetails['publisher'] : '');
+				echo ((($pubDetails['city'] != '') || ($pubDetails['year'] != '')) ? "<br />" : '');
 				echo ($pubDetails['city'] !='' ? "<span class=\"city\">" . $pubDetails['city'] . "</span>" : '');
-				echo ($year !='' ? " " . $year : '');
+				echo ($pubDetails['year'] !='' ? " (" . $pubDetails['year'] . ")" : '');
 				echo ($pubDetails['DOI'] !='' ? "<br />DOI: <a href='http://dx.doi.org/" . $pubDetails['DOI'] . "' target='blank'>" . $pubDetails['DOI'] . "</a>"  : '');
 				echo ($pubDetails['URI'] !='' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>"  : '');
 				break;
 			case "Editorial":
 				echo ($pubDetails['editors'] !='' ?  "<br />Hrsg: " . $pubDetails['editors'] : '');
-				echo ((($pubDetails['city'] != '') || ($pubDetails['publisher'] != '') || ($year != '')) ? "<br />" : '');
+				echo ((($pubDetails['city'] != '') || ($pubDetails['publisher'] != '') || ($pubDetails['year'] != '')) ? "<br />" : '');
 				echo ($pubDetails['volume'] !='' ? $pubDetails['volume'] . ". "  : '');
 				echo ($pubDetails['city'] !='' ? "<span class=\"city\">" . $pubDetails['city'] . "</span>: "  : '');
 				echo ($pubDetails['publisher'] !='' ? $pubDetails['publisher'] . ", "  : '');
-				echo ($year !='' ? $year : '');
+				echo ($pubDetails['year'] !='' ? $pubDetails['year'] : '');
 				echo ($pubDetails['series'] !='' ? "<br />" . $pubDetails['series'] : '');
 				echo ($pubDetails['seriesNumber'] !='' ? "Bd. " . $pubDetails['seriesNumber'] : '');
 				echo ($pubDetails['pagesTotal'] !='' ? "<br />" . $pubDetails['pagesTotal'] . " Seiten" : '');
@@ -582,11 +591,10 @@ class Publikationsliste {
 				echo ($pubDetails['URI'] !='' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>"  : '');
 				break;
 			case "Translation":
-				echo ((($pubDetails['city'] != '') || ($pubDetails['publisher'] != '') || ($year != '')) ? "<br />" : '');
+				echo ((($pubDetails['city'] != '') || ($pubDetails['publisher'] != '') || ($pubDetails['year'] != '')) ? "<br />" : '');
 				echo ($pubDetails['volume'] !='' ? $pubDetails['volume'] . ". "  : '');
 				echo ($pubDetails['city'] !='' ? "<span class=\"city\">" . $pubDetails['city'] . "</span>: "  : '');
 				echo ($pubDetails['publisher'] !='' ? $pubDetails['publisher'] . ", "  : '');
-				echo ($year !='' ? $year : '');
 				echo ($pubDetails['series'] !='' ? "<br />" . $pubDetails['series'] : '');
 				echo ($pubDetails['seriesNumber'] !='' ? "Bd. " . $pubDetails['seriesNumber'] : '');
 				echo ($pubDetails['pagesTotal'] !='' ? "<br />" . $pubDetails['pagesTotal'] . " Seiten" : '');
