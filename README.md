@@ -45,6 +45,6 @@ Einbinden von Daten aus der Forschungsdatenbank CRIS in Webseiten
 - Einbindung FAU-Visitenkarten
 
 ## Todos
-- Reihenfolge Jobs in Organigramm
+- <strike>Reihenfolge Jobs in Organigramm<&/strike> Done.
 - in Konfig-Datei Jobs definieren, die im Organigramm nicht angezeigt werden
 - Plugin auch für Wordpress
