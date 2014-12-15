@@ -9,6 +9,7 @@ class Mitarbeiterliste {
 		$options = $getoptions->options;
 		$orgNr = $options['CRISOrgNr'];
 		$this->pathPersonenseite = $options['Pfad_Personenseite'];
+		$this->ignore = explode("|",$options['Ignoriere_Jobs']);
 		$this->suchstring = 'http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getrelated/Organisation/' . $orgNr . '/CARD_has_ORGA';
 		// Orga-ID aus der URL extrahieren
 		/*$this->url = explode('/',$_SERVER['REQUEST_URI']);
@@ -76,7 +77,6 @@ class Mitarbeiterliste {
 	public function organigramm() {
 
 		// Mitarbeiter-Array umstrukturieren: Funktion -> ID -> Attribute -> Wert
-
 		$organigramm = array();
 		foreach($this->maArray as $i=>$element) {
 			foreach($element as $j=>$sub_element) {
@@ -92,7 +92,6 @@ class Mitarbeiterliste {
 		}
 
 		// Mitarbeiter-Array nach Hierarchie sortieren
-
 		$hierarchie = array(
 			'Lehrstuhlinhaber/in',
 			'Professurinhaber/in',
@@ -111,27 +110,29 @@ class Mitarbeiterliste {
 			'FoDa-Administrator/in',
 			'Andere'
 		);
-
 		$organigramm = $this->sort_key($organigramm, $hierarchie);
 
+		// Organigramm ausgeben
 		foreach ($organigramm as $i=>$funktion) {
-			echo "<h3>" . $i . "</h3>";
-			echo "<ul>";
-			foreach ($funktion as $maID=>$mitarbeiter) {
-				echo "<li>";
-				//echo "<a href='/cris/person.shtml/" . $maID ."'>";
-				echo "<a href='" . $this->pathPersonenseite . "/" . $maID . "'>";
-				echo strip_tags($mitarbeiter['firstName']) . " " . strip_tags($mitarbeiter['lastName']) . "</a>";
-				$jobs2 = explode('&#32;-&#32;',strip_tags(substr($mitarbeiter['allFunctions'], 0, -11)));
-				$strJobs= implode(', ',$jobs2);
-				if ($strJobs != '') {
-				echo " (";
-				echo $strJobs;
-				echo ")";
+			if (!in_array($i, $this->ignore)) {
+				echo "<h3>" . $i . "</h3>";
+				echo "<ul>";
+				foreach ($funktion as $maID=>$mitarbeiter) {
+					echo "<li>";
+					//echo "<a href='/cris/person.shtml/" . $maID ."'>";
+					echo "<a href='" . $this->pathPersonenseite . "/" . $maID . "'>";
+					echo strip_tags($mitarbeiter['firstName']) . " " . strip_tags($mitarbeiter['lastName']) . "</a>";
+					$jobs2 = explode('&#32;-&#32;',strip_tags(substr($mitarbeiter['allFunctions'], 0, -11)));
+					$strJobs= implode(', ',$jobs2);
+					if ($strJobs != '') {
+					echo " (";
+					echo $strJobs;
+					echo ")";
+				}
+				echo "</li>";
+				}
+				echo "</ul>";
 			}
-			echo "</li>";
-			}
-			echo "</ul>";
 		}
 
 	}

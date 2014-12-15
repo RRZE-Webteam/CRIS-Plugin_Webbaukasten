@@ -33,9 +33,16 @@ Einbinden von Daten aus der Forschungsdatenbank CRIS in Webseiten
   <code>Zeige_Publikationen        1   #Publikationsliste in Personen-Detail-Ansicht anzeigen? 1=ja, 0=nein</code><br />
   <code>Zeige_Auszeichnungen        1   #Auszeichnungen in Personen-Detail-Ansicht anzeigen? 1=ja, 0=nein</code><br />
   <code>Pfad_Personenseite        /cris/person.shtml   #für Links von Publikations- und Mitarbeiterlisten auf Personen-Detailseite</code><br />
-  <code>Cache_Zeit        18000   #Gültigkeitsdauer der Cache-Dateien in Sekunden</code
+  <code>Cache_Zeit        18000   #Gültigkeitsdauer der Cache-Dateien in Sekunden</code>
+  <code>Ignoriere_Jobs	FoDa-Administrator/in|Andere	#Funktionen, die im Organigramm nicht aufgef&uuml;hrt werden sollen</code>
 - Cache
 - Suche der CRIS-OrgNr anhand der FAU-OrgNr
+
+## Todos
+- <strike>Reihenfolge Jobs in Organigramm</strike> Done.
+- <strike>in Konfig-Datei Jobs definieren, die im Organigramm nicht angezeigt werden</strike> Done.
+- Plugin auch für Wordpress
+
 
 ## Mögliche Erweiterungen:
 - Bild auf Personen-Detailseite einbinden
@@ -43,8 +50,3 @@ Einbinden von Daten aus der Forschungsdatenbank CRIS in Webseiten
   - lokal auf dem Webauftritt analog zu UnivIS-Plugin
 - Eigenen Text in Personenseite einbinden (analog zu UnivIS-Plugin)
 - Einbindung FAU-Visitenkarten
-
-## Todos
-- <strike>Reihenfolge Jobs in Organigramm</strike> Done.
-- in Konfig-Datei Jobs definieren, die im Organigramm nicht angezeigt werden
-- Plugin auch für Wordpress
