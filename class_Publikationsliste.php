@@ -19,29 +19,6 @@ class Publikationsliste {
 			default: // keine Einheit angegeben -> OrgNr verwenden
 				$this->suchstring = "http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getautorelated/Organisation/" . $orgNr . "/ORGA_2_PUBL_1"; //141440
 		}
-		/*$this->url = explode('/',$_SERVER['REQUEST_URI']);
-		$this->param = $this->url[count($this->url)-1]; //letztes Element der URL (p_161182)
-		$this->elements = explode("_",$this->param); //letzes Element splitten in Einheit (p) und ID (161182)
-		$this->ID = $this->elements[count($this->elements)-1];
-		$this->einheit = $this->elements[count($this->elements)-2]; //p=Person, c=Card, o=Organisation
-
-		switch ($this->einheit) {
-			case "c":		//Publikationsliste nach Card
-				$this->suchstring = 'http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getrelated/Card/' . $this->ID . '/Publ_has_CARD';
-				$this->titeltext = "<h2>Publikationen mit Card-ID " . $this->ID."</h2>";
-				break;
-			case "p":		//Publikationsliste nach Person
-				$this->suchstring = "http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getautorelated/Person/" . $this->ID . "/PERS_2_PUBL_1";
-				$this->titeltext = "<h2>Publikationen mit Personen-ID " . $this->ID."</h2>";
-				break;
-			case "o":		//Publikationsliste nach Orgeinheit
-				$this->suchstring = "http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getautorelated/Organisation/" . $this->ID . "/ORGA_2_PUBL_1"; //141440
-				$this->titeltext = "<h2>Publikationen mit Orga-ID " . $this->ID."</h2>";
-				break;
-			default:
-				$this->suchstring = 'http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getrelated/Card/' . $this->ID . '/Publ_has_CARD';
-				$this->titeltext = "<h2>Publikationen mit Card-ID " . $this->ID."</h2>";
-		}*/
 
 		$this->xml = simplexml_load_file($this->suchstring);
 		$this->publications = $this->xml->infoObject;
@@ -75,6 +52,10 @@ class Publikationsliste {
 	 * Ausgabe aller Publikationen nach Jahren gegliedert
 	 */
 	public function pubNachJahr() {
+
+		if(empty($this->publications)) {
+			echo "<p>Es wurden leider keine Publikationen gefunden.</p>";
+		}
 
 		$pubByYear = array();
 
@@ -156,6 +137,10 @@ class Publikationsliste {
 	 * Ausgabe aller Publikationen nach Publikationstypen gegliedert
 	 */
 	public function pubNachTyp() {
+
+		if(empty($this->publications)) {
+			echo "<p>Es wurden leider keine Publikationen gefunden.</p>";
+		}
 
 		$pubByType = array();
 

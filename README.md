@@ -3,7 +3,7 @@ CRIS-Plugin_Webbaukasten
 
 Einbinden von Daten aus der Forschungsdatenbank CRIS in Webseiten
 
-## Version 1.0 (Stand 02.12.2014):
+## Version 1.0 (Stand 18.12.2014):
 
 - Installation analog zu übrigen Webbaukasten-Plugins in /vkdaten/tools/cris/
 - Folgende Includes verfügbar:
@@ -14,7 +14,7 @@ Einbinden von Daten aus der Forschungsdatenbank CRIS in Webseiten
   - Publikationslisten für einzelne Publikationstypen (alle 8 derzeit in CRIS erfassten):<br />
     <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste-buecher.php" --></code><br />
     <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste-zeitschriften.php" --></code><br />
-    <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste-konferenzbeitraege.php" --></code><br />
+    <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste-tagungsbeitraege.php" --></code><br />
     <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste-sammelbandbeitraege.php" --></code><br />
     <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste-herausgeberschaften.php" --></code><br />
     <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste-abschlussarbeiten.php" --></code><br />

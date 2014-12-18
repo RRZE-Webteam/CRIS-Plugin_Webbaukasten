@@ -59,7 +59,7 @@ class Personendetail {
 		$website = strip_tags($this->cardArray['cfURI']);
 		//$jobTitle = $this->cardArray['jobTitle'];
 		$jobTitle = explode('&#32;-&#32;',substr(strip_tags($this->cardArray['allFunctions']), 0, -11));
-		$jobTitle = implode(', ',$jobTitle);
+		$jobTitle = $jobTitle[count($jobTitle)-1];
 
 		echo "<h2>" . $academicTitle . " " . $vorname . " " . $nachname . "</h2>";
 		echo ($jobTitle !='' ? "<p><strong>" . $jobTitle . "</strong><p>" : '');

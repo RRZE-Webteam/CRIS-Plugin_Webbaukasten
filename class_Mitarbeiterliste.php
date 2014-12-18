@@ -11,14 +11,6 @@ class Mitarbeiterliste {
 		$this->pathPersonenseite = $options['Pfad_Personenseite'];
 		$this->ignore = explode("|",$options['Ignoriere_Jobs']);
 		$this->suchstring = 'http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getrelated/Organisation/' . $orgNr . '/CARD_has_ORGA';
-		// Orga-ID aus der URL extrahieren
-		/*$this->url = explode('/',$_SERVER['REQUEST_URI']);
-		$this->param = $this->url[count($this->url)-1]; //letztes Element der URL (p_161182)
-		$this->elements = explode("_",$this->param); //letzes Element splitten in Einheit (p) und ID (161182)
-		$this->ID = $this->elements[count($this->elements)-1];
-
-		// XML von CRIS holen
-		$this->suchstring = 'http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getrelated/Organisation/' . $this->ID . '/CARD_has_ORGA';*/
 		$this->mitarbeiter = simplexml_load_file($this->suchstring);
 
 		// XML -> Array
@@ -48,7 +40,7 @@ class Mitarbeiterliste {
 	/*
 	 * Alphabetisch sortierte Mitarbeiterliste
 	 */
-// Wenn finale Daten da: 'function' durch 'jobTitle' ersetzen !!!
+
 	public function liste() {
 
 		echo "<ul>";
@@ -57,7 +49,7 @@ class Mitarbeiterliste {
 			echo "<a href='" . $this->pathPersonenseite . "/" . $maID . "'>";
 			echo strip_tags($mitarbeiter['firstName']) . " " . strip_tags($mitarbeiter['lastName']) . "</a>";
 			$jobs2 = explode('&#32;-&#32;',strip_tags(substr($mitarbeiter['allFunctions'], 0, -11)));
-			$strJobs = implode(', ',$jobs2);
+			$strJobs = $jobs2[count($jobs2)-1];
 			if ($strJobs != '') {
 				echo " (";
 				echo $strJobs;
@@ -73,7 +65,7 @@ class Mitarbeiterliste {
 	/*
 	 * Nach Funktionen/jobTitle gegliederte Mitarbeiterliste
 	 */
-// Wenn finale Daten da: 'function' durch 'jobTitle' ersetzen !!!
+
 	public function organigramm() {
 
 		// Mitarbeiter-Array umstrukturieren: Funktion -> ID -> Attribute -> Wert
@@ -82,9 +74,8 @@ class Mitarbeiterliste {
 			foreach($element as $j=>$sub_element) {
 				if (($j == 'allFunctions') && $sub_element != '') {
 					$jobs = explode('&#32;-&#32;',substr(strip_tags($sub_element), 0, -11));
-					foreach ($jobs as $job) {
-						$organigramm[$job][$i] = $element;
-					}
+					$job = $jobs[count($jobs)-1];
+					$organigramm[$job][$i] = $element;
 				} elseif (($j == 'allFunctions') && !$sub_element) {
 					$organigramm['Andere'][$i]= $element;
 				}
@@ -123,13 +114,7 @@ class Mitarbeiterliste {
 					echo "<a href='" . $this->pathPersonenseite . "/" . $maID . "'>";
 					echo strip_tags($mitarbeiter['firstName']) . " " . strip_tags($mitarbeiter['lastName']) . "</a>";
 					$jobs2 = explode('&#32;-&#32;',strip_tags(substr($mitarbeiter['allFunctions'], 0, -11)));
-					$strJobs= implode(', ',$jobs2);
-					if ($strJobs != '') {
-					echo " (";
-					echo $strJobs;
-					echo ")";
-				}
-				echo "</li>";
+					echo "</li>";
 				}
 				echo "</ul>";
 			}
