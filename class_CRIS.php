@@ -11,9 +11,22 @@ class CRIS {
 
 		// defaults
 		$defaults = array(
-			'CRISOrgNr' => '0',
-			'Zeige_Publikationen' => '1',
-			'Zeige_Auszeichnungen' => '1',
+			'CRISOrgNr'				=> '0',
+			'Zeige_Publikationen'	=> '1',
+			'Reihenfolge_Publikationen'		=>	array(
+										'Journal article',
+										'Article in edited volumes',
+										'Translation',
+										'Book',
+										'Editorial',
+										'Conference Contribution',
+										'Thesis',
+										'Other'
+									),
+			'cris_staff_page'		=>	'mitarbeiter',
+//			'Zeige_Auszeichnungen'	=>	'0',
+			'cris_cache'			=>	'18000',
+			'cris_ignore'			=>	array( 'FoDa-Administrator/in', 'Andere' )
 		);
 
 		// load options

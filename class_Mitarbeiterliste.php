@@ -1,6 +1,7 @@
 <?php
 
-require_once('class_cris.php');
+require_once('class_CRIS.php');
+require_once("class_Tools.php");
 
 class Mitarbeiterliste {
 
@@ -10,8 +11,12 @@ class Mitarbeiterliste {
 		$orgNr = $options['CRISOrgNr'];
 		$this->pathPersonenseite = $options['Pfad_Personenseite'];
 		$this->ignore = explode("|",$options['Ignoriere_Jobs']);
-		$this->suchstring = 'http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getrelated/Organisation/' . $orgNr . '/CARD_has_ORGA';
-		$this->mitarbeiter = simplexml_load_file($this->suchstring);
+		$this->suchstring = 'https://cris.fau.de/ws-cached/public/infoobject/getrelated/Organisation/' . $orgNr . '/CARD_has_ORGA';
+		$this->mitarbeiter = @simplexml_load_file($this->suchstring, 'SimpleXmlElement', LIBXML_NOERROR+LIBXML_NOWARNING);
+		if (false === $this->mitarbeiter) {
+			print "<p>'Keine Daten gefunden.</p>";
+			return;
+		}
 
 		// XML -> Array
 		$this->maArray = array();
@@ -33,14 +38,13 @@ class Mitarbeiterliste {
 			}
 		}
 		// Array alphabetisch sortieren
-		$this->maArray = $this->record_sort($this->maArray);
+		$this->maArray = Tools::record_sortByName($this->maArray);
 	}
 
 
 	/*
 	 * Alphabetisch sortierte Mitarbeiterliste
 	 */
-
 	public function liste() {
 
 		echo "<ul>";
@@ -58,14 +62,12 @@ class Mitarbeiterliste {
 			echo "</li>";
 		}
 		echo "</ul>";
-
 	}
 
 
 	/*
 	 * Nach Funktionen/jobTitle gegliederte Mitarbeiterliste
 	 */
-
 	public function organigramm() {
 
 		// Mitarbeiter-Array umstrukturieren: Funktion -> ID -> Attribute -> Wert
@@ -101,7 +103,7 @@ class Mitarbeiterliste {
 			'FoDa-Administrator/in',
 			'Andere'
 		);
-		$organigramm = $this->sort_key($organigramm, $hierarchie);
+		$organigramm = Tools::sort_key($organigramm, $hierarchie);
 
 		// Organigramm ausgeben
 		foreach ($organigramm as $i=>$funktion) {
@@ -120,32 +122,6 @@ class Mitarbeiterliste {
 			}
 		}
 
-	}
+	} // Ende organigramm()
 
-	/*
-	 * Array sortieren (strings)
-	 */
-
-	private function record_sort($results) {
-
-		// Define the custom sort function
-		function custom_sort ($a, $b) { return (strcasecmp ($a['lastName'],$b['lastName']));}
-		// Sort the multidimensional array
-		uasort($results, "custom_sort");
-		return $results;
-	}
-
-	private function sort_key(&$sort_array, $keys_array) {
-		if(empty($sort_array) || !is_array($sort_array) || empty($keys_array)) return;
-		if(!is_array($keys_array)) $keys_array = explode(',',$keys_array);
-		if(!empty($keys_array)) $keys_array = array_reverse($keys_array);
-		foreach($keys_array as $n){
-			if(array_key_exists($n, $sort_array)){
-				$newarray = array($n=>$sort_array[$n]); //copy the node before unsetting
-				unset($sort_array[$n]); //remove the node
-				$sort_array = $newarray + array_filter($sort_array); //combine copy with filtered array
-			}
-		}
-		return $sort_array;
-	}
-}
+} // Ende class_Mitarbeiterliste

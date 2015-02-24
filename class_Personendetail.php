@@ -3,16 +3,22 @@
 class Personendetail {
 
 	public function __construct() {
+		$getoptions = new CRIS();
+		$this->options = $getoptions->options;
 
+		libxml_use_internal_errors(true);
 		$url = explode('/',$_SERVER['REQUEST_URI']);
-		$ID = $url[count($url)-1]; //letztes Element der URL (p_123456)
-		$suchPers = "http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getrelated/Card/" . $ID . "/PERS_has_CARD";
-		$this->xmlPers = simplexml_load_file($suchPers);
-		$suchCard = "http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/get/Card/". $ID;
-		$this->xmlCard = simplexml_load_file($suchCard);
-		$persID = $this->xmlPers->infoObject['id'];
-		$suchAwards = "http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getrelated/Person/". $persID . "/awar_has_pers";
-		$this->xmlAwards = simplexml_load_file($suchAwards);
+		$this->ID = $url[count($url)-1]; //letztes Element der URL (p_123456)
+		$suchPers = "https://cris.fau.de/ws-cached/public/infoobject/getrelated/Card/" . $this->ID . "/PERS_has_CARD";
+		$this->xmlPers = @simplexml_load_file($suchPers, 'SimpleXmlElement', LIBXML_NOERROR+LIBXML_NOWARNING);
+		$suchCard = "https://cris.fau.de/ws-cached/public/infoobject/get/Card/". $this->ID;
+
+		$this->xmlCard = @simplexml_load_file($suchCard, 'SimpleXmlElement', LIBXML_NOERROR+LIBXML_NOWARNING);
+		if (false === $this->xmlCard) {
+			print "<p>" . __('Keine Daten gefunden.', 'fau-cris') . "</p>"
+					."<p><a href=\"" . get_permalink() . "\">&rarr; " . __('Zur Mitarbeiterliste','fau-cris') . "</a></p>";
+			return;
+		}
 
 		$person = $this->xmlPers->infoObject->attribute;
 		foreach ($person as $attribut) {
@@ -49,6 +55,10 @@ class Personendetail {
 	 *  Persönliche Informationen, Kontakt etc.
 	 */
 	public function detail() {
+		if (false === $this->xmlCard) {
+			return;
+		}
+
 		$vorname = strip_tags($this->cardArray['firstName']);
 		$nachname = strip_tags($this->cardArray['lastName']);
 		$academicTitle = strip_tags($this->persArray['Academic title']);
@@ -64,17 +74,31 @@ class Personendetail {
 		echo "<h2>" . $academicTitle . " " . $vorname . " " . $nachname . "</h2>";
 		echo ($jobTitle !='' ? "<p><strong>" . $jobTitle . "</strong><p>" : '');
 		echo "<p>";
-		echo "E-Mail (Person): " . ($email !='' ? $email : '');
-		echo "<br />E-Mail (Card): " . ($email2 !='' ? $email2 : '');
-		echo "<br />Telefon: " . ($phone !='' ? $phone : '');
-		echo "<br />Fax: " . ($fax !='' ? $fax : '');
-		echo "<br />Website: " . ($website !='' ? $website : '');
+		echo ($email !='' ? "E-Mail: <a href=\"mailto:" . $email ."\">" . $email . '</a>' : '');
+		//echo ($email2 !='' ? "<br />E-Mail (Card): " . $email2 : '');
+		echo ($phone !='' ? "<br />Telefon: " . $phone : '');
+		echo ($fax !='' ? "<br />Fax: " . $fax : '');
+		echo ($website !='' ? "<br />Website: " . $website : '');
 		echo "</p>";
+
+/*		if ($options['Zeige_Awards'] == '1') {
+			$this->auszeichnungen();
+		}
+*/
+
+		if (isset($this->options['Zeige_Publikationen']) && $this->options['Zeige_Publikationen'] == '1') {
+			$liste = new Publikationsliste("person");
+			$liste->pubNachJahr('klein');
+		}
+
+		//echo "<br /><p><a href=\"" . $this->options['Pfad_Personenseite'] . "\">&larr; Zur&uuml;ck zur Mitarbeiterliste</a></p>";
+
 	}
 
 	/*
 	 *  Auszeichnungen
 	 */
+	/* Erstmal keine Awards in Webservices
 	public function auszeichnungen() {
 		$awards = $this->xmlAwards->infoObject;
 		$awardArray = array();
@@ -116,5 +140,5 @@ class Personendetail {
 		}
 
 	}
-
+*/
 }

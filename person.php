@@ -11,14 +11,4 @@ $options = $getoptions->options;
 $detail = new Personendetail();
 $detail->detail();
 
-if ($options['Zeige_Auszeichnungen'] == '1') {
-	$detail->auszeichnungen();
-}
-
-if ($options['Zeige_Publikationen'] == '1') {
-	echo "<h3>Publikationen</h3>";
-	$liste = new Publikationsliste("person");
-	$liste->liste();
-}
-
 include('cache-bottom.php');

@@ -1,34 +1,38 @@
 <?php
 
 require_once('class_cris.php');
+require_once("class_Tools.php");
+
 
 class Publikationsliste {
 
-	public function __construct($einheit) {
-		$getoptions = new CRIS();
-		$options = $getoptions->options;
-		$orgNr = $options['CRISOrgNr'];
-		$this->pathPersonenseite = $options['Pfad_Personenseite'];
+	private $pathPersonenseite;
+	private $options;
+	private $pubArray = array();
 
-		switch ($einheit) {
-			case "person" : //Publikationsliste nach Card (für Personendetailseite)
-				$this->url = explode('/',$_SERVER['REQUEST_URI']);
-				$this->ID = $this->url[count($this->url)-1]; //letztes Element der URL (161182)
-				$this->suchstring = 'http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getrelated/Card/' . $this->ID . '/Publ_has_CARD';
-				break;
-			default: // keine Einheit angegeben -> OrgNr verwenden
-				$this->suchstring = "http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getautorelated/Organisation/" . $orgNr . "/ORGA_2_PUBL_1"; //141440
+	public function __construct($einheit='') {
+		$getoptions = new CRIS();
+		$this->options = $getoptions->options;
+		$orgNr = $this->options['CRISOrgNr'];
+		$this->pathPersonenseite = $this->options['Pfad_Personenseite'];
+
+		if ($einheit == "person") {
+			//Publikationsliste nach Card (für Personendetailseite)
+			$url = explode('/',$_SERVER['REQUEST_URI']);
+			$this->ID = $url[count($url)-1]; //letztes Element der URL (161182)
+			$suchstring = 'http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getrelated/Card/' . $this->ID . '/Publ_has_CARD';
+		} else {
+			// keine Einheit angegeben -> OrgNr verwenden
+			$suchstring = "http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getautorelated/Organisation/" . $orgNr . "/ORGA_2_PUBL_1"; //141440
 		}
 
-		$this->xml = simplexml_load_file($this->suchstring);
-		$this->publications = $this->xml->infoObject;
+		$xml = simplexml_load_file($suchstring);
+		$publications = $xml->infoObject;
 
 		// XML -> Array
 
-		$this->pubArray = array();
-
-		foreach ($this->publications as $publication) {
-			$this->pubID = (string)$publication['id'];
+		foreach ($publications as $publication) {
+			$pubID = (string)$publication['id'];
 
 			foreach ($publication as $attribut){
 				if ($attribut['language'] == 1) {
@@ -41,21 +45,16 @@ class Publikationsliste {
 				} else {
 					$pubDetail = (string)$attribut->data;
 				}
-				$this->pubArray[$this->pubID][$pubAttribut] = $pubDetail;
+				$this->pubArray[$pubID][$pubAttribut] = $pubDetail;
 			}
 		}
-		$this->pubArray = $this->record_sort($this->pubArray);
-
+		$this->pubArray = Tools::record_sortByYear($this->pubArray);
 	}
 
 	/*
 	 * Ausgabe aller Publikationen nach Jahren gegliedert
 	 */
-	public function pubNachJahr() {
-
-		if(empty($this->publications)) {
-			echo "<p>Es wurden leider keine Publikationen gefunden.</p>";
-		}
+	public function pubNachJahr($display='') {
 
 		$pubByYear = array();
 
@@ -66,70 +65,23 @@ class Publikationsliste {
 				}
 			}
 		}
-
-		echo "<ul>";
-
-		foreach ($pubByYear as $year=>$publications) {
-
-			echo "<h3>" . $year . "</h3>";
-			echo "<ul>";
-
-			foreach ($publications as $publication) {
-				$authors = explode(", ", $publication['relAuthors']);
-				$authorIDs = explode(",", $publication['relAuthorsId']);
-				$authorsArray = array();
-				foreach ($authorIDs as $i => $key) {
-					$authorsArray[] = array($key => $authors[$i]);
+		if($display != 'klein') {
+			if (!empty($pubByYear)) {
+				foreach ($pubByYear as $year => $publications) {
+					echo '<h3>' . $year . '</h3>';
+					$this->make_list($publications);
 				}
-
-				$pubDetails = array(
-					authorsArray => $authorsArray,
-					title => strip_tags($publication['cfTitle']),
-					city => strip_tags($publication['cfCityTown']),
-					publisher => strip_tags($publication['publisher']),
-					year => strip_tags($publication['publYear']),
-					pubType => strip_tags($publication['Publication type']),
-					pagesTotal => strip_tags($publication['cfTotalPages']),
-					pagesRange => strip_tags($publication['pagesRange']),
-					volume => strip_tags($publication['cfVol']),
-					series => strip_tags($publication['cfSeries']),
-					seriesNumber => strip_tags($publication['cfNum']),
-					ISBN => strip_tags($publication['cfISBN']),
-					ISSN => strip_tags($publication['cfISSN']),
-					DOI => strip_tags($publication['DOI']),
-					URI => strip_tags($publication['cfURI']),
-					editiors => strip_tags($publication['Editor']),
-					booktitle => strip_tags($publication['Edited Volumes']), // Titel des Sammelbands
-					journaltitle => strip_tags($publication['journalName']),
-					conference => strip_tags($publication['Conference']),
-					origTitle => strip_tags($publication['Originaltitel']),
-					origLanguage => strip_tags($publication['Language'])
-				);
-
-				echo "<li style='margin-bottom: 15px; line-height: 150%;'>";
-				foreach ($pubDetails['authorsArray'] as $author) {
-					foreach ($author as $authorID=>$authorName) {
-						if ($authorID && $authorID != 'external') {
-							echo "<a href='" . $this->pathPersonenseite . "/" . substr($authorID, 0, -2) . "'>";
-							//echo "<a href='/cris/person.shtml/" . substr($authorID, 0, -2) . "'>";
-						}
-						echo "<span class=\"author\">" . $authorName . "</span>";
-						if ($authorID && $authorID != 'external') {
-							echo "</a>";
-						}
-						echo ", ";
-					}
-				}
-				echo ":";
-				echo "<br /><span class=\"title\"><b>" . $pubDetails['title'] . "</b></span>";
-
-				$this->echo_list($pubDetails);
-
-				echo "</li>";
+			} else {
+				echo '<p>Es wurden leider keine Publikationen gefunden.</p>';
 			}
-			echo "</ul>";
-
-
+		} else {
+			if (!empty($pubByYear)) {
+				echo '<h3>Publikationen</h3>';
+				foreach ($pubByYear as $year => $publications) {
+					echo '<h4>' . $year . '</h4>';
+					$this->make_list($publications);
+				}
+			}
 		}
 	}
 
@@ -137,10 +89,6 @@ class Publikationsliste {
 	 * Ausgabe aller Publikationen nach Publikationstypen gegliedert
 	 */
 	public function pubNachTyp() {
-
-		if(empty($this->publications)) {
-			echo "<p>Es wurden leider keine Publikationen gefunden.</p>";
-		}
 
 		$pubByType = array();
 
@@ -151,105 +99,19 @@ class Publikationsliste {
 				}
 			}
 		}
-		/*echo "<pre>";
-		//print_r($this->pubArray);
-		print_r($pubByYear);
-		echo "</pre>";*/
 
-		echo "<ul>";
+		//Publikationstypen sortieren
+		$order = $this->options['Reihenfolge_Publikationen'];
+		$pubByType = Tools::sort_key($pubByType, $order);
 
 		foreach ($pubByType as $type=>$publications) {
-
+			$title = Tools::getPubTranslation($type);
 			echo "<h3>";
-			switch ($type) {
-				case 'Book':
-					echo "B&uuml;cher";
-					break;
-				case 'Journal article':
-					echo "Zeitschriftenartikel";
-					break;
-				case 'Conference contribution':
-					echo "Konferenzbeitr&auml;ge";
-					break;
-				case 'Article in Edited Volumes':
-					echo "Beitr&auml;ge in Sammelb&auml;nden";
-					break;
-				case 'Editorial':
-					echo "Herausgeberschaften";
-					break;
-				case 'Thesis':
-					echo "Abschlussarbeiten";
-					break;
-				case 'Translation':
-					echo "&Uuml;bersetzungen";
-					break;
-				case 'Other':
-					echo "Andere";
-					break;
-				default:
-					echo $type;
-			}
+			echo $title;
 			echo "</h3>";
-			echo "<ul>";
-
-			foreach ($publications as $publication) {
-
-				$authors = explode(", ", $publication['relAuthors']);
-				$authorIDs = explode(",", $publication['relAuthorsId']);
-				$authorsArray = array();
-				foreach ($authorIDs as $i => $key) {
-					$authorsArray[] = array($key => $authors[$i]);
-				}
-
-				$pubDetails = array(
-					authorsArray => $authorsArray,
-					title => $publication['cfTitle'],
-					city => $publication['cfCityTown'],
-					publisher => $publication['publisher'],
-					year => $publication['publYear'],
-					pubType => $publication['Publication type'],
-					pagesTotal => $publication['cfTotalPages'],
-					pagesRange => $publication['pagesRange'],
-					volume => $publication['cfVol'],
-					series => $publication['cfSeries'],
-					seriesNumber => $publication['cfNum'],
-					ISBN => $publication['cfISBN'],
-					ISSN => $publication['cfISSN'],
-					DOI => $publication['DOI'],
-					URI => $publication['cfURI'],
-					editiors => $publication['Editor'],
-					booktitle => $publication['Edited Volumes'], // Titel des Sammelbands
-					journaltitle => $publication['journalName'],
-					conference => $publication['Conference'],
-					origTitle => $publication['Originaltitel'],
-					origLanguage => $publication['Language']
-				);
-
-				echo "<li style='margin-bottom: 15px; line-height: 150%;'>";
-				foreach ($pubDetails['authorsArray'] as $author) {
-					foreach ($author as $authorID=>$authorName) {
-						if ($authorID && $authorID != 'external') {
-							echo "<a href='" . $this->pathPersonenseite . "/" . substr($authorID, 0, -2) . "'>";
-							//echo "<a href='/cris/person.shtml/" . substr($authorID, 0, -2) . "'>";
-
-						}
-						echo "<span class=\"author\">" . $authorName . "</span>";
-						if ($authorID && $authorID != 'external') {
-							echo "</a>";
-						}
-						echo ", ";
-					}
-				}
-				echo ":";
-				echo "<br /><span class=\"title\"><b>" . $pubDetails['title'] . "</b></span>";
-
-				$this->echo_list($pubDetails);
-
-				echo "</li>";
-			}
-			echo "</ul>";
+			$this->make_list($publications);
 		}
-	}
+	} // Ende pubNachTyp()
 
 
 	/*
@@ -257,142 +119,43 @@ class Publikationsliste {
 	 */
 	public function publikationstypen($typ) {
 
-		if(empty($this->publications)) {
-			echo "<p>Es wurden leider keine Publikationen gefunden.</p>";
+		$publications = array();
+		$pubTyp = Tools::getPubName($typ, "en");
+		$pubTyp_de = Tools::getPubName($typ, "de");
+		if (!isset($pubTyp) && !isset($pubTyp_de)) {
+			echo "<p>Falscher Parameter</p>";
+			return;
 		}
-
-		echo "<ul>";
-
-		foreach ($this->pubArray as $publication) {
-
-			$authors = explode(", ", $publication['relAuthors']);
-			$authorIDs = explode(",", $publication['relAuthorsId']);
-			$authorsArray = array();
-			foreach ($authorIDs as $i => $key) {
-				$authorsArray[] = array($key => $authors[$i]);
+		foreach($this->pubArray as $id => $book) {
+			if($book['Publication type'] == $pubTyp){
+				$publications[$id] = $book;
 			}
-
-			$pubDetails = array(
-				authorsArray => $authorsArray,
-				title => strip_tags($publication['cfTitle']),
-				city => strip_tags($publication['cfCityTown']),
-				publisher => strip_tags($publication['publisher']),
-				year => strip_tags($publication['publYear']),
-				pubType => strip_tags($publication['Publication type']),
-				pagesTotal => strip_tags($publication['cfTotalPages']),
-				pagesRange => strip_tags($publication['pagesRange']),
-				volume => strip_tags($publication['cfVol']),
-				series => strip_tags($publication['cfSeries']),
-				seriesNumber => strip_tags($publication['cfNum']),
-				ISBN => strip_tags($publication['cfISBN']),
-				ISSN => strip_tags($publication['cfISSN']),
-				DOI => strip_tags($publication['DOI']),
-				URI => strip_tags($publication['cfURI']),
-				editiors => strip_tags($publication['Editor']),
-				booktitle => strip_tags($publication['Edited Volumes']), // Titel des Sammelbands
-				journaltitle => strip_tags($publication['journalName']),
-				conference => strip_tags($publication['Conference']),
-				origTitle => strip_tags($publication['Originaltitel']),
-				origLanguage => strip_tags($publication['Language'])
-			);
-
-			if ($pubDetails['pubType'] == $typ) {
-				echo "<li style='margin-bottom: 15px; line-height: 150%;'>";
-				foreach ($pubDetails['authorsArray'] as $author) {
-					foreach ($author as $authorID=>$authorName) {
-						if ($authorID && $authorID != 'external') {
-							echo "<a href='" . $this->pathPersonenseite . "/" . substr($authorID, 0, -2) . "'>";
-							//echo "<a href='/cris/person.shtml/" . substr($authorID, 0, -2) . "'>";
-						}
-						echo "<span class=\"author\">" . $authorName . "</span>";
-						if ($authorID && $authorID != 'external') {
-							echo "</a>";
-						}
-						echo ", ";
-					}
-				}
-			echo ":";
-			echo "<br /><span class=\"title\"><b>" . $pubDetails['title'] . "</b></span>";
-
-			$this->echo_list($pubDetails);
-
-			echo "</li>";
-
-			} // end if
 		}
-
-		echo "</ul>";
-
+		if (!empty($publications)) {
+			$this->make_list($publications);
+		} else {
+			echo "<p>Es wurden leider keine Publikationen des Typs &quot;" . $pubTyp_de . "&quot; gefunden.</p>";
+		}
 	}
 
 	/*
 	 * Ausgabe Publikationen einzener Jahre
 	 */
-	public function publikationsjahre($jahr) {
-		if(empty($this->publications)) {
-			echo "<p>Es wurden leider keine Publikationen gefunden.</p>";
-			//return;
-		}
-		echo "<ul>";
+	public function publikationsjahre($year) {
 
-		foreach ($this->pubArray as $publication) {
+		$publications = array();
 
-			$authors = explode(", ", $publication['relAuthors']);
-			$authorIDs = explode(",", $publication['relAuthorsId']);
-			$authorsArray = array();
-			foreach ($authorIDs as $i => $key) {
-				$authorsArray[] = array($key => $authors[$i]);
+		foreach($this->pubArray as $id => $book) {
+			if($book['publYear'] == $year){
+				$publications[$id] = $book;
 			}
-
-			$pubDetails = array(
-				authorsArray => $authorsArray,
-				title => strip_tags($publication['cfTitle']),
-				city => strip_tags($publication['cfCityTown']),
-				publisher => strip_tags($publication['publisher']),
-				year => strip_tags($publication['publYear']),
-				pubType => strip_tags($publication['Publication type']),
-				pagesTotal => strip_tags($publication['cfTotalPages']),
-				pagesRange => strip_tags($publication['pagesRange']),
-				volume => strip_tags($publication['cfVol']),
-				series => strip_tags($publication['cfSeries']),
-				seriesNumber => strip_tags($publication['cfNum']),
-				ISBN => strip_tags($publication['cfISBN']),
-				ISSN => strip_tags($publication['cfISSN']),
-				DOI => strip_tags($publication['DOI']),
-				URI => strip_tags($publication['cfURI']),
-				editiors => strip_tags($publication['Editor']),
-				booktitle => strip_tags($publication['Edited Volumes']), // Titel des Sammelbands
-				journaltitle => strip_tags($publication['journalName']),
-				conference => strip_tags($publication['Conference']),
-				origTitle => strip_tags($publication['Originaltitel']),
-				origLanguage => strip_tags($publication['Language'])
-			);
-
-			if ($pubDetails['publYear'] == $jahr) {
-				echo "<li style='margin-bottom: 15px; line-height: 150%;'>";
-				foreach ($pubDetails['authorsArray'] as $author) {
-					foreach ($author as $authorID=>$authorName) {
-						if ($authorID && $authorID != 'external') {
-							echo "<a href='" . $this->pathPersonenseite . "/" . substr($authorID, 0, -2) . "'>";
-						}
-						echo "<span class=\"author\">" . $authorName . "</span>";
-						if ($authorID && $authorID != 'external') {
-							echo "</a>";
-						}
-						echo ", ";
-					}
-				}
-			echo ":";
-			echo "<br /><span class=\"title\"><b>" . $pubDetails['title'] . "</b></span>";
-
-			$this->echo_list($pubDetails);
-
-			echo "</li>";
-
-			} // end if
 		}
 
-		echo "</ul>";
+		if (!empty($publications)) {
+			$this->make_list($publications);
+		} else {
+			echo "<p>Es wurden leider keine Publikationen aus dem Jahr " . $year . " gefunden.</p>";
+		}
 
 	}
 
@@ -405,17 +168,27 @@ class Publikationsliste {
 			echo $this->titeltext;
 		}
 
-		if(empty($this->publications)) {
+		if (!empty($this->pubArray)) {
+			$this->make_list($this->pubArray);
+		} else {
 			echo "<p>Es wurden keine Publikationen gefunden.</p>";
 		}
+	}
+
+	/* =========================================================================
+	 * Private Functions
+	 ======================================================================== */
+
+	/*
+	 * Ausgabe der Publikationsdetails, unterschiedlich nach Publikationstyp
+	 */
+
+	private function make_list($publications) {
 
 		echo "<ul>";
-/*
-			echo "<pre>";
-			print_r($this->pubArray);
-			echo "</pre>";
-*/
-		foreach ($this->pubArray as $publication) {
+
+		foreach ($publications as $id => $publication) {
+
 			$authors = explode(", ", $publication['relAuthors']);
 			$authorIDs = explode(",", $publication['relAuthorsId']);
 			$authorsArray = array();
@@ -424,172 +197,154 @@ class Publikationsliste {
 			}
 
 			$pubDetails = array(
-				authorsArray => $authorsArray,
-				title => strip_tags($publication['cfTitle']),
-				city => strip_tags($publication['cfCityTown']),
-				publisher => strip_tags($publication['publisher']),
-				year => strip_tags($publication['publYear']),
-				pubType => strip_tags($publication['Publication type']),
-				pagesTotal => strip_tags($publication['cfTotalPages']),
-				pagesRange => strip_tags($publication['pagesRange']),
-				volume => strip_tags($publication['cfVol']),
-				series => strip_tags($publication['cfSeries']),
-				seriesNumber => strip_tags($publication['cfNum']),
-				ISBN => strip_tags($publication['cfISBN']),
-				ISSN => strip_tags($publication['cfISSN']),
-				DOI => strip_tags($publication['DOI']),
-				URI => strip_tags($publication['cfURI']),
-				editiors => strip_tags($publication['Editor']),
-				booktitle => strip_tags($publication['Edited Volumes']), // Titel des Sammelbands
-				journaltitle => strip_tags($publication['journalName']),
-				conference => strip_tags($publication['Conference']),
-				origTitle => strip_tags($publication['Originaltitel']),
-				origLanguage => strip_tags($publication['Language'])
+				'id' => $id,
+				'authorsArray' => $authorsArray,
+				'title' => (array_key_exists('cfTitle', $publication) ? strip_tags($publication['cfTitle']) : 'O.T.'),
+				'city' => (array_key_exists('cfCityTown', $publication) ? strip_tags($publication['cfCityTown']) : 'O.O.'),
+				'publisher' => (array_key_exists('publisher', $publication) ? strip_tags($publication['publisher']) : 'O.A.'),
+				'year' => (array_key_exists('publYear', $publication) ? strip_tags($publication['publYear']) : 'O.J.'),
+				'pubType' => (array_key_exists('Publication type', $publication) ? strip_tags($publication['Publication type']) : 'O.A.'),
+				'pagesTotal' => (array_key_exists('cfTotalPages', $publication) ? strip_tags($publication['cfTotalPages']) : ''),
+				'pagesRange' => (array_key_exists('pagesRange', $publication) ? strip_tags($publication['pagesRange']) : ''),
+				'volume' => (array_key_exists('cfVol', $publication) ? strip_tags($publication['cfVol']) : 'O.A.'),
+				'series' => (array_key_exists('cfSeries', $publication) ? strip_tags($publication['cfSeries']) : 'O.A.'),
+				'seriesNumber' => (array_key_exists('cfNum', $publication) ? strip_tags($publication['cfNum']) : 'O.A.'),
+				'ISBN' => (array_key_exists('cfISBN', $publication) ? strip_tags($publication['cfISBN']) : 'O.A.'),
+				'ISSN' => (array_key_exists('cfISSN', $publication) ? strip_tags($publication['cfISSN']) : 'O.A.'),
+				'DOI' => (array_key_exists('DOI', $publication) ? strip_tags($publication['DOI']) : 'O.A.'),
+				'URI' => (array_key_exists('cfURI', $publication) ? strip_tags($publication['cfURI']) : 'O.A.'),
+				'editiors' => (array_key_exists('Editor', $publication) ? strip_tags($publication['Editor']) : 'O.A.'),
+				'booktitle' => (array_key_exists('Edited Volumes', $publication) ? strip_tags($publication['Edited Volumes']) : 'O.A.'), // Titel des Sammelbands
+				'journaltitle' => (array_key_exists('journalName', $publication) ? strip_tags($publication['journalName']) : 'O.A.'),
+				'conference' => (array_key_exists('Conference', $publication) ? strip_tags($publication['Conference']) : 'O.A.'),
+				'origTitle' => (array_key_exists('Originaltitel', $publication) ? strip_tags($publication['Originaltitel']) : 'O.A.'),
+				'origLanguage' => (array_key_exists('Language', $publication) ? strip_tags($publication['Language']) : 'O.A.')
 			);
 
 			echo "<li style='margin-bottom: 15px; line-height: 150%;'>";
 
-			// Autor: Link wenn in CRIS, Klartext wenn extern
 			foreach ($pubDetails['authorsArray'] as $author) {
-				foreach ($author as $authorID=>$authorName) {
+				foreach ($author as $authorID => $authorName) {
+//					$link_pre = "<a href=\"" . $this->pathPersonenseite . "/" . substr($authorID, 0, -2) . "\">";
+//					$link_post = "</a>";
+					$span_pre = "<span class=\"author\">";
+					$span_post = "</span>";
+
 					if ($authorID && $authorID != 'external') {
-						echo "<a href='" . $this->pathPersonenseite . "/" . substr($authorID, 0, -2) . "'>";
-						//echo "<a href='/cris/person.shtml/" . substr($authorID, 0, -2) . "'>";
+							echo "<a href='" . $this->pathPersonenseite . "/" . substr($authorID, 0, -2) . "'>";
 					}
-					echo "<span class=\"author\">" . $authorName . "</span>";
+					echo $span_pre . $authorName . $span_post;
 					if ($authorID && $authorID != 'external') {
-						echo "</a>";
+							echo "</a>";
 					}
 					echo ", ";
 				}
 			}
-			echo ":";
-			// Titel
-			echo "<br /><span class=\"title\"><b>" . $pubDetails['title'] . "</b></span>";
+			echo ($pubDetails['pubType'] == 'Editorial' ? ' (Hrsg.):' : ':');
 
-			// Bibliograhische Angaben, abhängig von Publikationstyp
-			$this->echo_list($pubDetails);
+			echo "<br /><span class=\"title\"><b>"
+			. "<a href=\"http://cris.fau.de/converis/publicweb/Publication/" . $id
+			. "\" target=\"blank\" title=\"Detailansicht in neuem Fenster &ouml;ffnen\">"
+			. $pubDetails['title']
+			. "</a>"
+			. "</b></span>";
 
+
+			switch ($pubDetails['pubType']) {
+
+				case "Other": // Falling through
+				case "Book":
+					echo ((($pubDetails['city'] != '') || ($pubDetails['publisher'] != '') || ($pubDetails['year'] != '')) ? "<br />" : '');
+					echo ($pubDetails['volume'] != '' ? $pubDetails['volume'] . ". " : '');
+					echo ($pubDetails['city'] != '' ? "<span class=\"city\">" . $pubDetails['city'] . "</span>: " : '');
+					echo ($pubDetails['publisher'] != '' ? $pubDetails['publisher'] . ", " : '');
+					echo ($pubDetails['year'] != '' ? $pubDetails['year'] : '');
+					echo ($pubDetails['series'] != '' ? "<br />" . $pubDetails['series'] : '');
+					echo ($pubDetails['seriesNumber'] != '' ? "Bd. " . $pubDetails['seriesNumber'] : '');
+					echo ($pubDetails['pagesTotal'] != '' ? "<br />" . $pubDetails['pagesTotal'] . " Seiten" : '');
+					echo ($pubDetails['ISBN'] != '' ? "<br />ISBN: " . $pubDetails['ISBN'] : '');
+					echo ($pubDetails['ISSN'] != '' ? "<br />ISSN: " . $pubDetails['ISSN'] : '');
+					echo ($pubDetails['DOI'] != '' ? "<br />DOI: <a href='http://dx.doi.org/" . $pubDetails['DOI'] . "' target='blank'>" . $pubDetails['DOI'] . "</a>" : '');
+					echo ($pubDetails['URI'] != '' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>" : '');
+					break;
+
+				case "Article in Edited Volumes":
+					echo ((($pubDetails['editiors'] != '') || ($pubDetails['booktitle'] != '')) ? "<br />" : '');
+					echo ($pubDetails['editiors'] != '' ? "In: <strong>" . $pubDetails['editiors'] . '</strong> (Hrsg.):' : '');
+					echo ($pubDetails['booktitle'] != '' ? " <strong><em>" . $pubDetails['booktitle'] . '</em></strong>' : '');
+					echo ((($pubDetails['city'] != '') || ($pubDetails['publisher'] != '') || ($pubDetails['year'] != '')) ? "<br />" : '');
+					echo ($pubDetails['volume'] != '' ? $pubDetails['volume'] . ". " : '');
+					echo ($pubDetails['city'] != '' ? "<span class=\"city\">" . $pubDetails['city'] . "</span>: " : '');
+					echo ($pubDetails['publisher'] != '' ? $pubDetails['publisher'] . ", " : '');
+					echo ($pubDetails['year'] != '' ? $pubDetails['year'] : '');
+					echo ($pubDetails['series'] != '' ? "<br />" . $pubDetails['series'] : '');
+					echo ($pubDetails['seriesNumber'] != '' ? "Bd. " . $pubDetails['seriesNumber'] : '');
+					echo ($pubDetails['pagesTotal'] != '' ? "<br />" . $pubDetails['pagesTotal'] . " Seiten" : '');
+					echo ($pubDetails['ISBN'] != '' ? "<br />ISBN: " . $pubDetails['ISBN'] : '');
+					echo ($pubDetails['ISSN'] != '' ? "<br />ISSN: " . $pubDetails['ISSN'] : '');
+					echo ($pubDetails['DOI'] != '' ? "<br />DOI: <a href='http://dx.doi.org/" . $pubDetails['DOI'] . "' target='blank'>" . $pubDetails['DOI'] . "</a>" : '');
+					echo ($pubDetails['URI'] != '' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>" : '');
+					break;
+
+				case "Journal article":
+					echo ((($pubDetails['journaltitle'] != '') || ($pubDetails['volume'] != '') || ($pubDetails['year'] != '') || ($pubDetails['pagesRange'] != '')) ? "<br />" : '');
+					echo ($pubDetails['journaltitle'] != '' ? "In: <strong>" . $pubDetails['journaltitle'] . '</strong> ' : '');
+					echo ($pubDetails['volume'] != '' ? $pubDetails['volume'] . ". " : '');
+					echo ($pubDetails['year'] != '' ? " (" . $pubDetails['year'] . ")" : '');
+					echo ($pubDetails['pagesRange'] != '' ? ", S. " . $pubDetails['pagesRange'] : '');
+					echo ($pubDetails['DOI'] != '' ? "<br />DOI: <a href='http://dx.doi.org/" . $pubDetails['DOI'] . "' target='blank'>" . $pubDetails['DOI'] . "</a>" : '');
+					echo ($pubDetails['URI'] != '' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>" : '');
+					break;
+
+				case "Conference contribution":
+					echo ((($pubDetails['conference'] != '') || ($pubDetails['publisher'] != '')) ? "<br />" : '');
+					echo ($pubDetails['conference'] != '' ? $pubDetails['conference'] : '');
+					echo ((($pubDetails['conference'] != '') && ($pubDetails['publisher'] != '')) ? ", " : '');
+					echo ($pubDetails['publisher'] != '' ? $pubDetails['publisher'] : '');
+					echo ((($pubDetails['city'] != '') || ($pubDetails['year'] != '')) ? "<br />" : '');
+					echo ($pubDetails['city'] != '' ? "<span class=\"city\">" . $pubDetails['city'] . "</span>" : '');
+					echo ($pubDetails['year'] != '' ? " (" . $pubDetails['year'] . ")" : '');
+					echo ($pubDetails['DOI'] != '' ? "<br />DOI: <a href='http://dx.doi.org/" . $pubDetails['DOI'] . "' target='blank'>" . $pubDetails['DOI'] . "</a>" : '');
+					echo ($pubDetails['URI'] != '' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>" : '');
+					break;
+				case "Editorial":
+					echo ((($pubDetails['city'] != '') || ($pubDetails['publisher'] != '') || ($pubDetails['year'] != '')) ? "<br />" : '');
+					echo ($pubDetails['volume'] != '' ? $pubDetails['volume'] . ". " : '');
+					echo ($pubDetails['city'] != '' ? "<span class=\"city\">" . $pubDetails['city'] . "</span>: " : '');
+					echo ($pubDetails['publisher'] != '' ? $pubDetails['publisher'] . ", " : '');
+					echo ($pubDetails['year'] != '' ? $pubDetails['year'] : '');
+					echo ($pubDetails['series'] != '' ? "<br />" . $pubDetails['series'] : '');
+					echo ($pubDetails['seriesNumber'] != '' ? "Bd. " . $pubDetails['seriesNumber'] : '');
+					echo ($pubDetails['pagesTotal'] != '' ? "<br />" . $pubDetails['pagesTotal'] . " Seiten" : '');
+					echo ($pubDetails['ISBN'] != '' ? "<br />ISBN: " . $pubDetails['ISBN'] : '');
+					echo ($pubDetails['ISSN'] != '' ? "<br />ISSN: " . $pubDetails['ISSN'] : '');
+					echo ($pubDetails['DOI'] != '' ? "<br />DOI: <a href='http://dx.doi.org/" . $pubDetails['DOI'] . "' target='blank'>" . $pubDetails['DOI'] . "</a>" : '');
+					echo ($pubDetails['URI'] != '' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>" : '');
+					break;
+				case "Thesis":
+					echo "<br />Abschlussarbeit";
+					echo ($pubDetails['DOI'] != '' ? "<br />DOI: <a href='http://dx.doi.org/" . $pubDetails['DOI'] . "' target='blank'>" . $pubDetails['DOI'] . "</a>" : '');
+					echo ($pubDetails['URI'] != '' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>" : '');
+					break;
+				case "Translation":
+					echo ((($pubDetails['city'] != '') || ($pubDetails['publisher'] != '') || ($pubDetails['year'] != '')) ? "<br />" : '');
+					echo ($pubDetails['volume'] != '' ? $pubDetails['volume'] . ". " : '');
+					echo ($pubDetails['city'] != '' ? "<span class=\"city\">" . $pubDetails['city'] . "</span>: " : '');
+					echo ($pubDetails['publisher'] != '' ? $pubDetails['publisher'] . ", " : '');
+					echo ($pubDetails['series'] != '' ? "<br />" . $pubDetails['series'] : '');
+					echo ($pubDetails['seriesNumber'] != '' ? "Bd. " . $pubDetails['seriesNumber'] : '');
+					echo ($pubDetails['pagesTotal'] != '' ? "<br />" . $pubDetails['pagesTotal'] . " Seiten" : '');
+					echo ($pubDetails['ISBN'] != '' ? "<br />ISBN: " . $pubDetails['ISBN'] : '');
+					echo ($pubDetails['ISSN'] != '' ? "<br />ISSN: " . $pubDetails['ISSN'] : '');
+					echo ($pubDetails['DOI'] != '' ? "<br />DOI: <a href='http://dx.doi.org/" . $pubDetails['DOI'] . "' target='blank'>" . $pubDetails['DOI'] . "</a>" : '');
+					echo ($pubDetails['URI'] != '' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>" : '');
+					echo ($pubDetails['origTitle'] != '' ? "<br />Originaltitel: " . $pubDetails['origTitle'] : '');
+					echo ($pubDetails['origLanguage'] != '' ? "<br />Originalsprache: " . $pubDetails['origLanguage'] : '');
+					break;
+			}
 			echo "</li>";
 		}
 		echo "</ul>";
-
 	}
 
-	/* =========================================================================
-	 * Private Functions
-	 ======================================================================== */
-
-	/*
-	 * Publikationsdaten nach Jahr sortieren
-	 */
-	private function record_sort($results) {
-
-		// Define the custom sort function
-		function custom_sort ($a, $b) { return $a['publYear']<$b['publYear'];}
-		// Sort the multidimensional array
-		uasort($results, "custom_sort");
-		return $results;
-	}
-
-
-	/*
-	 * Ausgabe der Publikationsdetails, unterschiedlich nach Publikationstyp
-	 */
-	private function echo_list($pubDetails) {
-
-		switch ($pubDetails['pubType']) {
-
-			case "Other": // Falling through
-			case "Book":
-				echo ((($pubDetails['city'] != '') || ($pubDetails['publisher'] != '') || ($pubDetails['year'] != '')) ? "<br />" : '');
-				echo ($pubDetails['volume'] !='' ? $pubDetails['volume'] . ". "  : '');
-				echo ($pubDetails['city'] !='' ? "<span class=\"city\">" . $pubDetails['city'] . "</span>: "  : '');
-				echo ($pubDetails['publisher'] !='' ? $pubDetails['publisher'] . ", "  : '');
-				echo ($pubDetails['year'] !='' ? $pubDetails['year'] : '');
-				echo ($pubDetails['series'] !='' ? "<br />" . $pubDetails['series'] : '');
-				echo ($pubDetails['seriesNumber'] !='' ? "Bd. " . $pubDetails['seriesNumber'] : '');
-				echo ($pubDetails['pagesTotal'] !='' ? "<br />" . $pubDetails['pagesTotal'] . " Seiten" : '');
-				echo ($pubDetails['ISBN'] !='' ? "<br />ISBN: " . $pubDetails['ISBN'] : '');
-				echo ($pubDetails['ISSN'] !='' ? "<br />ISSN: " . $pubDetails['ISSN'] : '');
-				echo ($pubDetails['DOI'] !='' ? "<br />DOI: <a href='http://dx.doi.org/" . $pubDetails['DOI'] . "' target='blank'>" . $pubDetails['DOI'] . "</a>"  : '');
-				echo ($pubDetails['URI'] !='' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>"  : '');
-				break;
-
-			case "Article in Edited Volumes":
-				echo ((($pubDetails['editiors'] != '') || ($pubDetails['booktitle'] != '')) ? "<br />" : '');
-				echo ($pubDetails['editiors'] !='' ?  "In: <strong>" . $pubDetails['editiors'] . '</strong> (Hrsg.):' : '');
-				echo ($pubDetails['booktitle'] !='' ?  "In: <strong><em>" . $pubDetails['booktitle'] . '</em></strong>' : '');
-				echo ((($pubDetails['city'] != '') || ($pubDetails['publisher'] != '') || ($pubDetails['year'] != '')) ? "<br />" : '');
-				echo ($pubDetails['volume'] !='' ? $pubDetails['volume'] . ". "  : '');
-				echo ($pubDetails['city'] !='' ? "<span class=\"city\">" . $pubDetails['city'] . "</span>: "  : '');
-				echo ($pubDetails['publisher'] !='' ? $pubDetails['publisher'] . ", "  : '');
-				echo ($pubDetails['year'] !='' ? $pubDetails['year'] : '');
-				echo ($pubDetails['series'] !='' ? "<br />" . $pubDetails['series'] : '');
-				echo ($pubDetails['seriesNumber'] !='' ? "Bd. " . $pubDetails['seriesNumber'] : '');
-				echo ($pubDetails['pagesTotal'] !='' ? "<br />" . $pubDetails['pagesTotal'] . " Seiten" : '');
-				echo ($pubDetails['ISBN'] !='' ? "<br />ISBN: " . $pubDetails['ISBN'] : '');
-				echo ($pubDetails['ISSN'] !='' ? "<br />ISSN: " . $pubDetails['ISSN'] : '');
-				echo ($pubDetails['DOI'] !='' ? "<br />DOI: <a href='http://dx.doi.org/" . $pubDetails['DOI'] . "' target='blank'>" . $pubDetails['DOI'] . "</a>"  : '');
-				echo ($pubDetails['URI'] !='' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>"  : '');
-				break;
-
-			case "Journal article":
-				echo ((($pubDetails['journaltitle'] != '') || ($pubDetails['volume'] != '') || ($pubDetails['year'] != '') || ($pubDetails['pagesRange'] != '')) ? "<br />" : '');
-				echo ($pubDetails['journaltitle'] !='' ?  "In: <strong>" . $pubDetails['journaltitle'] . '</strong> ' : '');
-				echo ($pubDetails['volume'] !='' ? $pubDetails['volume'] . ". "  : '');
-				echo ($pubDetails['year'] !='' ? " (" . $pubDetails['year'] . ")" : '');
-				echo ($pubDetails['pagesRange'] !='' ? ", S. " . $pubDetails['pagesRange'] : '');
-				echo ($pubDetails['DOI'] !='' ? "<br />DOI: <a href='http://dx.doi.org/" . $pubDetails['DOI'] . "' target='blank'>" . $pubDetails['DOI'] . "</a>"  : '');
-				echo ($pubDetails['URI'] !='' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>"  : '');
-				break;
-
-			case "Conference contribution":
-				echo ((($pubDetails['conference'] != '') || ($pubDetails['publisher'] != '')) ? "<br />" : '');
-				echo ($pubDetails['conference'] !='' ? $pubDetails['conference'] : '');
-				echo ((($pubDetails['conference'] != '') && ($pubDetails['publisher'] != '')) ? ", " : '');
-				echo ($pubDetails['publisher'] !='' ? $pubDetails['publisher'] : '');
-				echo ((($pubDetails['city'] != '') || ($pubDetails['year'] != '')) ? "<br />" : '');
-				echo ($pubDetails['city'] !='' ? "<span class=\"city\">" . $pubDetails['city'] . "</span>" : '');
-				echo ($pubDetails['year'] !='' ? " (" . $pubDetails['year'] . ")" : '');
-				echo ($pubDetails['DOI'] !='' ? "<br />DOI: <a href='http://dx.doi.org/" . $pubDetails['DOI'] . "' target='blank'>" . $pubDetails['DOI'] . "</a>"  : '');
-				echo ($pubDetails['URI'] !='' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>"  : '');
-				break;
-			case "Editorial":
-				echo ($pubDetails['editors'] !='' ?  "<br />Hrsg: " . $pubDetails['editors'] : '');
-				echo ((($pubDetails['city'] != '') || ($pubDetails['publisher'] != '') || ($pubDetails['year'] != '')) ? "<br />" : '');
-				echo ($pubDetails['volume'] !='' ? $pubDetails['volume'] . ". "  : '');
-				echo ($pubDetails['city'] !='' ? "<span class=\"city\">" . $pubDetails['city'] . "</span>: "  : '');
-				echo ($pubDetails['publisher'] !='' ? $pubDetails['publisher'] . ", "  : '');
-				echo ($pubDetails['year'] !='' ? $pubDetails['year'] : '');
-				echo ($pubDetails['series'] !='' ? "<br />" . $pubDetails['series'] : '');
-				echo ($pubDetails['seriesNumber'] !='' ? "Bd. " . $pubDetails['seriesNumber'] : '');
-				echo ($pubDetails['pagesTotal'] !='' ? "<br />" . $pubDetails['pagesTotal'] . " Seiten" : '');
-				echo ($pubDetails['ISBN'] !='' ? "<br />ISBN: " . $pubDetails['ISBN'] : '');
-				echo ($pubDetails['ISSN'] !='' ? "<br />ISSN: " . $pubDetails['ISSN'] : '');
-				echo ($pubDetails['DOI'] !='' ? "<br />DOI: <a href='http://dx.doi.org/" . $pubDetails['DOI'] . "' target='blank'>" . $pubDetails['DOI'] . "</a>"  : '');
-				echo ($pubDetails['URI'] !='' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>"  : '');
-				break;
-			case "Thesis":
-				echo "<br />Abschlussarbeit";
-				echo ($pubDetails['DOI'] !='' ? "<br />DOI: <a href='http://dx.doi.org/" . $pubDetails['DOI'] . "' target='blank'>" . $pubDetails['DOI'] . "</a>"  : '');
-				echo ($pubDetails['URI'] !='' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>"  : '');
-				break;
-			case "Translation":
-				echo ((($pubDetails['city'] != '') || ($pubDetails['publisher'] != '') || ($pubDetails['year'] != '')) ? "<br />" : '');
-				echo ($pubDetails['volume'] !='' ? $pubDetails['volume'] . ". "  : '');
-				echo ($pubDetails['city'] !='' ? "<span class=\"city\">" . $pubDetails['city'] . "</span>: "  : '');
-				echo ($pubDetails['publisher'] !='' ? $pubDetails['publisher'] . ", "  : '');
-				echo ($pubDetails['series'] !='' ? "<br />" . $pubDetails['series'] : '');
-				echo ($pubDetails['seriesNumber'] !='' ? "Bd. " . $pubDetails['seriesNumber'] : '');
-				echo ($pubDetails['pagesTotal'] !='' ? "<br />" . $pubDetails['pagesTotal'] . " Seiten" : '');
-				echo ($pubDetails['ISBN'] !='' ? "<br />ISBN: " . $pubDetails['ISBN'] : '');
-				echo ($pubDetails['ISSN'] !='' ? "<br />ISSN: " . $pubDetails['ISSN'] : '');
-				echo ($pubDetails['DOI'] !='' ? "<br />DOI: <a href='http://dx.doi.org/" . $pubDetails['DOI'] . "' target='blank'>" . $pubDetails['DOI'] . "</a>"  : '');
-				echo ($pubDetails['URI'] !='' ? "<br />URL: <a href='" . $pubDetails['URI'] . "' target='blank'>" . $pubDetails['URI'] . "</a>"  : '');
-				echo ($pubDetails['origTitle'] !='' ? "<br />Originaltitel: " . $pubDetails['origTitle'] : '');
-				echo ($pubDetails['origLanguage'] !='' ? "<br />Originalsprache: " . $pubDetails['origLanguage'] : '');
-				break;
-		}
-	}
 }
