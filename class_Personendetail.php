@@ -58,7 +58,8 @@ class Personendetail {
 		if (false === $this->xmlCard) {
 			return;
 		}
-
+print_r($this->cardArray);
+print_r($this->persArray);
 		$vorname = strip_tags($this->cardArray['firstName']);
 		$nachname = strip_tags($this->cardArray['lastName']);
 		$academicTitle = strip_tags($this->persArray['Academic title']);
@@ -67,9 +68,10 @@ class Personendetail {
 		$phone = strip_tags($this->cardArray['phone']);
 		$fax = strip_tags($this->cardArray['fax']);
 		$website = strip_tags($this->cardArray['cfURI']);
-		//$jobTitle = $this->cardArray['jobTitle'];
-		$jobTitle = explode('&#32;-&#32;',substr(strip_tags($this->cardArray['allFunctions']), 0, -11));
-		$jobTitle = $jobTitle[count($jobTitle)-1];
+		$jobTitle = $this->cardArray['allFunctions'];
+		//Wenn in allFunctions tatsächlich alle Funktionen stehen:
+		//$jobTitle = explode('&#32;-&#32;',substr(strip_tags($this->cardArray['allFunctions']), 0, -11));
+		//$jobTitle = $jobTitle[count($jobTitle)-1];
 
 		echo "<h2>"
 			. ($academicTitle ? '<acronym title="' . Tools::getAcronym($academicTitle) . '">' . $academicTitle . "</acronym> " : '')
