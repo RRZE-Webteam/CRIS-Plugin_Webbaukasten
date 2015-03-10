@@ -58,8 +58,6 @@ class Personendetail {
 		if (false === $this->xmlCard) {
 			return;
 		}
-print_r($this->cardArray);
-print_r($this->persArray);
 		$vorname = strip_tags($this->cardArray['firstName']);
 		$nachname = strip_tags($this->cardArray['lastName']);
 		$academicTitle = strip_tags($this->persArray['Academic title']);

@@ -34,6 +34,14 @@ class Mitarbeiterliste {
 				} else {
 					$maDetail = (string)$attribut->data;
 				}
+				if($attribut['name'] == "allFunctions") {
+					if (strstr($attribut->data, ' (')) {
+						$functions = strstr($attribut->data, ' (', true);
+					} else {
+						$functions = $attribut->data;
+					}
+					$maDetail = explode(' - ', $functions);
+				}
 				$this->maArray[$this->maID][$maAttribut] = $maDetail;
 			}
 		}
@@ -46,17 +54,14 @@ class Mitarbeiterliste {
 	 * Alphabetisch sortierte Mitarbeiterliste
 	 */
 	public function liste() {
-
 		echo "<ul>";
 		foreach ($this->maArray as $maID=>$mitarbeiter) {
 			echo "<li>";
 			echo "<a href='" . $this->pathPersonenseite . "/" . $maID . "'>";
 			echo strip_tags($mitarbeiter['firstName']) . " " . strip_tags($mitarbeiter['lastName']) . "</a>";
-			$jobs2 = explode('&#32;-&#32;',strip_tags(substr($mitarbeiter['allFunctions'], 0, -11)));
-			$strJobs = $jobs2[count($jobs2)-1];
-			if ($strJobs != '') {
+			if (!empty($mitarbeiter['allFunctions'])) {
 				echo " (";
-				echo $strJobs;
+				echo implode(', ', $mitarbeiter['allFunctions']);
 				echo ")";
 			}
 			echo "</li>";
@@ -74,10 +79,10 @@ class Mitarbeiterliste {
 		$organigramm = array();
 		foreach($this->maArray as $i=>$element) {
 			foreach($element as $j=>$sub_element) {
-				if (($j == 'allFunctions') && $sub_element != '') {
-					$jobs = explode('&#32;-&#32;',substr(strip_tags($sub_element), 0, -11));
-					$job = $jobs[count($jobs)-1];
-					$organigramm[$job][$i] = $element;
+				if (($j == 'allFunctions') && !empty($sub_element)) {
+					foreach ($sub_element as $job) {
+						$organigramm[$job][$i] = $element;
+					}
 				} elseif (($j == 'allFunctions') && !$sub_element) {
 					$organigramm['Andere'][$i]= $element;
 				}
@@ -103,7 +108,6 @@ class Mitarbeiterliste {
 				echo "</ul>";
 			}
 		}
-
 	} // Ende organigramm()
 
 } // Ende class_Mitarbeiterliste
