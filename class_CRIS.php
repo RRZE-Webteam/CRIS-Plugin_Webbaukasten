@@ -1,29 +1,5 @@
 <?php
 
-/**
- * Plugin Name: CRIS-Plugin für Webbaukasten
- * Description: Anzeige von Daten aus dem FAU-Forschungsportal CRIS in Webbaukasten-Seiten
- * Version: 1.1
- * Author: Barbara Bothe
- * Author URI: http://blogs.fau.de/webworking/
- * License: GPLv2 or later
-*/
-/*
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
-
 class CRIS {
 
 	public function __construct() {
@@ -37,7 +13,7 @@ class CRIS {
 		$defaults = array(
 			'CRISOrgNr'				=> '0',
 			'Zeige_Publikationen'	=> '1',
-			'Reihenfolge_Publikationen'		=>	array(
+			'cris_pub_order'		=>	array(
 										'Journal article',
 										'Article in edited volumes',
 										'Translation',

@@ -11,14 +11,11 @@ class Mitarbeiterliste {
 		$orgNr = $options['CRISOrgNr'];
 		$this->pathPersonenseite = $options['Pfad_Personenseite'];
 		$this->ignore = explode("|",$options['Ignoriere_Jobs']);
+		$this->jobOrder = explode("|",$options['Reihenfolge_Jobs']);
 		$this->suchstring = 'https://cris.fau.de/ws-cached/public/infoobject/getrelated/Organisation/' . $orgNr . '/CARD_has_ORGA';
-		$this->mitarbeiter = @simplexml_load_file($this->suchstring, 'SimpleXmlElement', LIBXML_NOERROR+LIBXML_NOWARNING);
-		if (false === $this->mitarbeiter) {
-			print "<p>'Keine Daten gefunden.</p>";
-			return;
-		}
+		$this->mitarbeiter = Tools::XML2obj($this->suchstring);
 
-		// XML -> Array
+		// XML-Object -> Array
 		$this->maArray = array();
 		foreach ($this->mitarbeiter as $mitarbeiter) {
 			$this->maID = (string)$mitarbeiter['id'];
@@ -54,6 +51,9 @@ class Mitarbeiterliste {
 	 * Alphabetisch sortierte Mitarbeiterliste
 	 */
 	public function liste() {
+
+		if (empty ($this->maArray)) return;
+
 		echo "<ul>";
 		foreach ($this->maArray as $maID=>$mitarbeiter) {
 			echo "<li>";
@@ -75,6 +75,8 @@ class Mitarbeiterliste {
 	 */
 	public function organigramm() {
 
+		if (empty ($this->maArray)) return;
+
 		// Mitarbeiter-Array umstrukturieren: Funktion -> ID -> Attribute -> Wert
 		$organigramm = array();
 		foreach($this->maArray as $i=>$element) {
@@ -90,7 +92,12 @@ class Mitarbeiterliste {
 		}
 
 		// Mitarbeiter-Array nach Hierarchie sortieren
-		$organigramm = Tools::sort_key($organigramm, Dicts::$jobOrder);
+
+		if ($this->jobOrder[0] != '') {
+			$organigramm = Tools::sort_key($organigramm, $this->jobOrder);
+		} else {
+			$organigramm = Tools::sort_key($organigramm, Dicts::$jobOrder);
+		}
 
 		// Organigramm ausgeben
 		foreach ($organigramm as $i=>$funktion) {

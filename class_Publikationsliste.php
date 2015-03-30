@@ -20,13 +20,13 @@ class Publikationsliste {
 			//Publikationsliste nach Card (für Personendetailseite)
 			$url = explode('/',$_SERVER['REQUEST_URI']);
 			$this->ID = $url[count($url)-1]; //letztes Element der URL (161182)
-			$suchstring = 'http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getrelated/Card/' . $this->ID . '/Publ_has_CARD';
+			$suchstring = 'https://cris.fau.de/ws-cached/public/infoobject/getrelated/Card/' . $this->ID . '/Publ_has_CARD';
 		} else {
 			// keine Einheit angegeben -> OrgNr verwenden
-			$suchstring = "http://avedas-neu.zuv.uni-erlangen.de/converis/ws/public/infoobject/getautorelated/Organisation/" . $orgNr . "/ORGA_2_PUBL_1"; //141440
+			$suchstring = "https://cris.fau.de/ws-cached/public/infoobject/getautorelated/Organisation/" . $orgNr . "/ORGA_2_PUBL_1"; //141440
 		}
 
-		$xml = @simplexml_load_file($suchstring, 'SimpleXmlElement', LIBXML_NOERROR+LIBXML_NOWARNING);
+		$xml = Tools::XML2obj($suchstring);
 		$publications = $xml->infoObject;
 
 		// XML -> Array
@@ -102,6 +102,13 @@ class Publikationsliste {
 
 		//Publikationstypen sortieren
 		$order = $this->options['Reihenfolge_Publikationen'];
+
+		if ($order[0] != '') {
+			$pubByType = Tools::sort_key($pubByType, $order);
+		} else {
+			$pubByType = Tools::sort_key($pubByType, Dicts::$jobOrder);
+		}
+
 		$pubByType = Tools::sort_key($pubByType, $order);
 
 		foreach ($pubByType as $type=>$publications) {
