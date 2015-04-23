@@ -1,6 +1,6 @@
 <?php
 
-require_once('class_cris.php');
+require_once('class_CRIS.php');
 require_once("class_Tools.php");
 
 
