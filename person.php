@@ -1,7 +1,7 @@
 <?php
 require_once("class_Personendetail.php");
 require_once("class_Publikationsliste.php");
-require_once('class_cris.php');
+require_once('class_CRIS.php');
 
 include('cache-top.php');
 

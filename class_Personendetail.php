@@ -20,6 +20,7 @@ class Personendetail {
 		}
 
 		$person = $this->xmlPers->infoObject->attribute;
+
 		foreach ($person as $attribut) {
 			if ($attribut['language'] == 1) {
 				$persAttribut = (string)$attribut['name'] . "_en";
@@ -75,7 +76,7 @@ class Personendetail {
 		if (!empty($this->cardArray['allFunctions'])) {
 			$jobTitle = implode(', ', $this->cardArray['allFunctions']);
 		}
-		
+
 		echo "<h2>"
 			. ($academicTitle ? '<acronym title="' . Tools::getAcronym($academicTitle) . '">' . $academicTitle . "</acronym> " : '')
 			. $vorname . " " . $nachname
