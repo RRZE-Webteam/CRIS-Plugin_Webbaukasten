@@ -3,7 +3,7 @@ CRIS-Plugin_Webbaukasten
 
 Einbinden von Daten aus der FAU-Forschungsdatenbank CRIS in Webseiten
 
-## Version 1.2.0 (Stand 30.03.2015):
+## Version 1.2.1 (Stand 15.06.2015):
 
 - Installation analog zu den übrigen Webbaukasten-Plugins in /vkdaten/tools/cris/
 - Folgende Includes verfügbar:
@@ -22,6 +22,8 @@ Einbinden von Daten aus der FAU-Forschungsdatenbank CRIS in Webseiten
     <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php/andere" --></code>
   - Publikationslisten für einzelne Jahre:<br />
     <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php/2014" --></code>
+  - Publikationslisten ab einem bestimmten Jahr:<br />
+    <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php/start-2000" --></code>
   - Organigramm:<br />
     <code><!--#include virtual="/vkdaten/tools/cris/organigramm.php" --></code>
   - Mitarbeiterliste:<br />

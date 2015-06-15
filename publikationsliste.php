@@ -11,6 +11,9 @@ if (isset($_SERVER['PATH_INFO'])) {
 		$liste->publikationsjahre($param);
 	} elseif ($param == 'typ') {
 		$liste->pubNachTyp();
+	} elseif (substr($param,0,6) === 'start-') {
+		$start = explode("-", $param)[1];
+		$liste->publikationsjahrestart($start);
 	} else {
 		$liste->publikationstypen($param);
 	}
