@@ -31,12 +31,13 @@ Einbinden von Daten aus der FAU-Forschungsdatenbank CRIS in Webseiten
   - Personen-Detailseite:<br />
     <code><!--#include virtual="/vkdaten/tools/cris/person.php" --></code>
 - Konfiguration über /vkdaten/cris.conf (über NavEditor > Erweitert > Konfiguration editierbar):<br />
-  Eintrag | Beispiel | Erklärung |
-  CRISOrgNr | 1234567 | CRIS-Organisationsnummer |
-  Zeige_Publikationen | 1 | Publikationsliste in Personen-Detail-Ansicht anzeigen? 1=ja, 0=nein |
-  Reihenfolge_Publikationen | Journal article&#124;Article in edited volumes&#124;Translation&#124;Book&#124;Editorial&#124;Conference Contribution&#124;Thesis&#124;Other | |
-  Pfad_Personenseite | /cris/person.shtml | für Links von Publikations- und Mitarbeiterlisten auf Personen-Detailseite |
-  Ignoriere_Jobs | FoDa-Administrator/in&#124;Andere | Funktionen, die im Organigramm nicht aufgef&uuml;hrt werden sollen |
-  Personeninfo_Univis | 1 | In Publikationslisten Autoren mit ihrer UnivIS-Personenseite verlinken?; 1=ja, 0=nein; UnivIS-Plugin muss installiert und eingerichtet sein |
-  Pfad_Personenseite_Univis | /wir-ueber-uns/mitarbeiter/mitarbeiter.shtml | Pfad zur UnivIS-Personenseite |
-- Suche der CRIS-OrgNr anhand der FAU-OrgNr
+  
+Eintrag | Beispiel | Erklärung |
+| ------------- | ------------- | ------------- |
+CRISOrgNr | 1234567 | CRIS-Organisationsnummer |
+Zeige_Publikationen | 1 | Publikationsliste in Personen-Detail-Ansicht anzeigen? 1=ja, 0=nein |
+Reihenfolge_Publikationen | Journal article&#124;Article in edited volumes&#124;Translation&#124;Book&#124;Editorial&#124;Conference Contribution&#124;Thesis&#124;Other | Reihenfolge, wenn die Publikationsliste nach Publikationstypen gegliedert werden soll|
+Pfad_Personenseite | /cris/person.shtml | für Links von Publikations- und Mitarbeiterlisten auf Personen-Detailseite |
+Ignoriere_Jobs | FoDa-Administrator/in&#124;Andere | Funktionen, die im Organigramm nicht aufgef&uuml;hrt werden sollen |
+Personeninfo_Univis | 1 | In Publikationslisten Autoren mit ihrer UnivIS-Personenseite verlinken?; 1=ja, 0=nein; UnivIS-Plugin muss installiert und eingerichtet sein |
+Pfad_Personenseite_Univis | /wir-ueber-uns/mitarbeiter/mitarbeiter.shtml | Pfad zur UnivIS-Personenseite |
