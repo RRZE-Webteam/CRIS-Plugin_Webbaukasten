@@ -31,25 +31,12 @@ Einbinden von Daten aus der FAU-Forschungsdatenbank CRIS in Webseiten
   - Personen-Detailseite:<br />
     <code><!--#include virtual="/vkdaten/tools/cris/person.php" --></code>
 - Konfiguration über /vkdaten/cris.conf (über NavEditor > Erweitert > Konfiguration editierbar):<br />
-  <code>CRISOrgNr			1234567</code><br />
-  <code>Zeige_Publikationen	1   #Publikationsliste in Personen-Detail-Ansicht anzeigen? 1=ja, 0=nein</code><br />
-  <code>Reihenfolge_Publikationen	Journal article|Article in edited volumes|Translation|Book|Editorial|Conference Contribution|Thesis|Other</code><br />
-  <code>Pfad_Personenseite	/cris/person.shtml   #für Links von Publikations- und Mitarbeiterlisten auf Personen-Detailseite</code><br />
-  <code>Cache_Zeit			18000   #Gültigkeitsdauer der Cache-Dateien in Sekunden</code><br />
-  <code>Ignoriere_Jobs		FoDa-Administrator/in|Andere	#Funktionen, die im Organigramm nicht aufgef&uuml;hrt werden sollen</code>
-- Cache
+  Eintrag | Beispiel | Erklärung |
+  CRISOrgNr | 1234567 | CRIS-Organisationsnummer |
+  Zeige_Publikationen | 1 | Publikationsliste in Personen-Detail-Ansicht anzeigen? 1=ja, 0=nein |
+  Reihenfolge_Publikationen | Journal article&#124;Article in edited volumes&#124;Translation&#124;Book&#124;Editorial&#124;Conference Contribution&#124;Thesis&#124;Other | |
+  Pfad_Personenseite | /cris/person.shtml | für Links von Publikations- und Mitarbeiterlisten auf Personen-Detailseite |
+  Ignoriere_Jobs | FoDa-Administrator/in&#124;Andere | Funktionen, die im Organigramm nicht aufgef&uuml;hrt werden sollen |
+  Personeninfo_Univis | 1 | In Publikationslisten Autoren mit ihrer UnivIS-Personenseite verlinken?; 1=ja, 0=nein; UnivIS-Plugin muss installiert und eingerichtet sein |
+  Pfad_Personenseite_Univis | /wir-ueber-uns/mitarbeiter/mitarbeiter.shtml | Pfad zur UnivIS-Personenseite |
 - Suche der CRIS-OrgNr anhand der FAU-OrgNr
-
-## Todos
-- <strike>Reihenfolge Jobs in Organigramm</strike> Done.
-- <strike>in Konfig-Datei Jobs definieren, die im Organigramm nicht angezeigt werden</strike> Done.
-- <strike>Plugin auch für Wordpress</strike> Done.
-- <strike>Reihenfolge der Publikationstypen konfigurierbar machen</strike>
-- Name der Person in URL statt ID
-
-## Mögliche Erweiterungen:
-- Bild auf Personen-Detailseite einbinden
-  - aus CRIS übernehmen (noch unklar, ob überhaupt möglich) oder
-  - lokal auf dem Webauftritt analog zu UnivIS-Plugin
-- Eigenen Text in Personenseite einbinden (analog zu UnivIS-Plugin)
-- Einbindung FAU-Visitenkarten

@@ -13,7 +13,7 @@ class CRIS {
 		$defaults = array(
 			'CRISOrgNr'				=> '0',
 			'Zeige_Publikationen'	=> '1',
-			'cris_pub_order'		=>	array(
+			'Reihenfolge_Publikationen'		=>	array(
 										'Journal article',
 										'Article in edited volumes',
 										'Translation',
@@ -23,7 +23,9 @@ class CRIS {
 										'Thesis',
 										'Other'
 									),
-			'cris_staff_page'		=>	'mitarbeiter',
+			'Pfad_Personenseite'		=>	'mitarbeiter',
+			'Personeninfo_Univis'		=> '1',
+			'Pfad_Personenseite_Univis'		=>	'/wir-ueber-uns/mitarbeiter/mitarbeiter.shtml',
 //			'Zeige_Auszeichnungen'	=>	'0',
 			'cris_cache'			=>	'18000',
 			'cris_ignore'			=>	array( 'FoDa-Administrator/in', 'Andere' )

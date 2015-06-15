@@ -15,6 +15,8 @@ class Publikationsliste {
 		$this->options = $getoptions->options;
 		$orgNr = $this->options['CRISOrgNr'];
 		$this->pathPersonenseite = $this->options['Pfad_Personenseite'];
+		$this->pathPersonenseiteUnivis = $this->options['Pfad_Personenseite_Univis'];
+
 
 		if ($einheit == "person") {
 			//Publikationsliste nach Card (für Personendetailseite)
@@ -261,12 +263,15 @@ class Publikationsliste {
 
 			$authorList = array();
 			foreach ($pubDetails['authorsArray'] as $author) {
-				$link_pre = "<a href=\"" . $this->pathPersonenseite . "/" . $author['id'] . "\">";
+//				$link_pre = "<a href=\"" . $this->pathPersonenseite . "/" . $author['id'] . "\">";
+				$author['firstname']= explode(" ", $author['name'])[1];
+				$author['lastname']= explode(" ", $author['name'])[0];
+				$link_pre = "<a href=\"" . $this->pathPersonenseiteUnivis . "/" . $author['firstname'] . "-" .  $author['lastname'] . "\">";
 				$link_post = "</a>";
 				$span_pre = "<span class=\"author\">";
 				$span_post = "</span>";
 				$authordata = $span_pre . $author['name'] . $span_post;
-				if ($author['id'] && !in_array($author['id'], array('invisible', 'external'))) {
+				if ($author['id'] && !in_array($author['id'], array('invisible', 'external')) && $this->options['Personeninfo_Univis']) {
 					$authordata = $link_pre . $authordata . $link_post;
 				}
 				$authorList[] = $authordata;
