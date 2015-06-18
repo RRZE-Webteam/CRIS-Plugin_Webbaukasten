@@ -22,10 +22,10 @@ class Publikationsliste {
 			//Publikationsliste nach Card (für Personendetailseite)
 			$url = explode('/',$_SERVER['REQUEST_URI']);
 			$this->ID = $url[count($url)-1]; //letztes Element der URL (161182)
-			$suchstring = 'https://cris.fau.de/ws-cached/public/infoobject/getrelated/Card/' . $this->ID . '/Publ_has_CARD';
+			$suchstring = 'https://cris.fau.de/ws-cached/1.0/public/infoobject/getrelated/Card/' . $this->ID . '/Publ_has_CARD';
 		} else {
 			// keine Einheit angegeben -> OrgNr verwenden
-			$suchstring = "https://cris.fau.de/ws-cached/public/infoobject/getautorelated/Organisation/" . $orgNr . "/ORGA_2_PUBL_1"; //141440
+			$suchstring = "https://cris.fau.de/ws-cached/1.0/public/infoobject/getautorelated/Organisation/" . $orgNr . "/ORGA_2_PUBL_1"; //141440
 		}
 
 		$xml = Tools::XML2obj($suchstring);

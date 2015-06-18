@@ -9,9 +9,9 @@ class Personendetail {
 		libxml_use_internal_errors(true);
 		$url = explode('/',$_SERVER['REQUEST_URI']);
 		$this->ID = $url[count($url)-1]; //letztes Element der URL (p_123456)
-		$suchPers = "https://cris.fau.de/ws-cached/public/infoobject/getrelated/Card/" . $this->ID . "/PERS_has_CARD";
+		$suchPers = "https://cris.fau.de/ws-cached/1.0/public/infoobject/getrelated/Card/" . $this->ID . "/PERS_has_CARD";
 		$this->xmlPers = Tools::XML2obj($suchPers);
-		$suchCard = "https://cris.fau.de/ws-cached/public/infoobject/get/Card/". $this->ID;
+		$suchCard = "https://cris.fau.de/ws-cached/1.0/public/infoobject/get/Card/". $this->ID;
 		$this->xmlCard = Tools::XML2obj($suchCard);
 		if (false === $this->xmlCard) {
 			print "<p>" . __('Keine Daten gefunden.', 'fau-cris') . "</p>"

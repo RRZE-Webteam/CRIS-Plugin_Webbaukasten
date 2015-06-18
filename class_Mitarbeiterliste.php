@@ -12,7 +12,7 @@ class Mitarbeiterliste {
 		$this->pathPersonenseite = $options['Pfad_Personenseite'];
 		$this->ignore = explode("|",$options['Ignoriere_Jobs']);
 		$this->jobOrder = explode("|",$options['Reihenfolge_Jobs']);
-		$this->suchstring = 'https://cris.fau.de/ws-cached/public/infoobject/getrelated/Organisation/' . $orgNr . '/CARD_has_ORGA';
+		$this->suchstring = 'https://cris.fau.de/ws-cached/1.0/public/infoobject/getrelated/Organisation/' . $orgNr . '/CARD_has_ORGA';
 		$this->mitarbeiter = Tools::XML2obj($this->suchstring);
 
 		// XML-Object -> Array
