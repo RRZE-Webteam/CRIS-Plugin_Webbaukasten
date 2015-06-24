@@ -51,7 +51,15 @@ class Publikationsliste {
 			}
 		}
 		$this->pubArray = Tools::record_sortByYear($this->pubArray);
+
+		// Mitarbeiter dieser Organisationseinheit (damit nur diese später verlinkt werden)
+		$suchstringOrga = 'https://cris.fau.de/ws-cached/1.0/public/infoobject/getrelated/Organisation/' . $orgNr . '/CARD_has_ORGA';
+		$xmlOrga = Tools::XML2obj($suchstringOrga);
+		foreach ($xmlOrga as $card) {
+			$this->inOrga[] = (string)$card['id'];
+		}
 	}
+
 
 	/*
 	 * Ausgabe aller Publikationen nach Jahren gegliedert
@@ -78,9 +86,8 @@ class Publikationsliste {
 			}
 		} else {
 			if (!empty($pubByYear)) {
-				echo '<h3>Publikationen</h3>';
 				foreach ($pubByYear as $year => $publications) {
-					echo '<h4>' . $year . '</h4>';
+					echo '<h3>' . $year . '</h3>';
 					$this->make_list($publications);
 				}
 			}
@@ -187,7 +194,6 @@ class Publikationsliste {
 			}
 		}
 		if (!empty($pubByYear)) {
-			echo '<h3>Publikationen</h3>';
 			foreach ($pubByYear as $year => $publications) {
 				echo '<h4>' . $year . '</h4>';
 				$this->make_list($publications);
@@ -263,15 +269,20 @@ class Publikationsliste {
 
 			$authorList = array();
 			foreach ($pubDetails['authorsArray'] as $author) {
-//				$link_pre = "<a href=\"" . $this->pathPersonenseite . "/" . $author['id'] . "\">";
-				$author['firstname']= explode(" ", $author['name'])[1];
-				$author['lastname']= explode(" ", $author['name'])[0];
-				$link_pre = "<a href=\"" . $this->pathPersonenseiteUnivis . "/" . $author['firstname'] . "-" .  $author['lastname'] . "\">";
-				$link_post = "</a>";
 				$span_pre = "<span class=\"author\">";
 				$span_post = "</span>";
 				$authordata = $span_pre . $author['name'] . $span_post;
-				if ($author['id'] && !in_array($author['id'], array('invisible', 'external')) && $this->options['Personeninfo_Univis']) {
+				$author_firstname = explode(" ", $author['name'])[1];
+				$author_lastname = explode(" ", $author['name'])[0];
+				if ($author['id']
+						&& !in_array($author['id'], array('invisible', 'external'))
+						&& $this->options['Personeninfo_Univis']
+						&& in_array($author['id'],$this->inOrga)) {
+					$link_pre = "<a href=\"" . $this->pathPersonenseite . "/" . $author['id'] . "\">";
+					$author['firstname']= explode(" ", $author['name'])[1];
+					$author['lastname']= explode(" ", $author['name'])[0];
+					$link_pre = "<a href=\"" . $this->pathPersonenseiteUnivis . "/" . $author['firstname'] . "-" .  $author['lastname'] . "\">";
+					$link_post = "</a>";
 					$authordata = $link_pre . $authordata . $link_post;
 				}
 				$authorList[] = $authordata;
