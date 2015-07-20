@@ -1,30 +1,58 @@
 CRIS-Plugin_Webbaukasten
 ========================
 
-Einbinden von Daten aus der FAU-Forschungsdatenbank CRIS in Webseiten
+Version 1.3 (Stand 20.07.2015)
 
-## Version 1.2.2 (Stand 24.06.2015):
+Einbinden von Daten aus der FAU-Forschungsdatenbank <b>CRIS</b> in Webseiten
 
+Für die Publikationslisten lassen sich über Parameter verschiedene Ausgabeformen einstellen. Die Titel sind jeweils mit der Detailansicht der Publikation auf http://cris.fau.de verlinkt.
+
+## Installation
 - Installation analog zu den übrigen Webbaukasten-Plugins in /vkdaten/tools/cris/
-- Folgende Includes verfügbar:
-  - Publikationsliste (automatisch nach Jahren gegliedert):<br />
-  <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php" --></code>
-  - Publikationsliste nach Typen gegliedert:<br />
-  <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php/typ" --></code>
-  - Publikationslisten für einzelne Publikationstypen (alle 8 derzeit in CRIS erfassten):<br />
-    <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php/buecher" --></code><br />
-    <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php/zeitschriften" --></code><br />
-    <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php/tagungsbeitraege" --></code><br />
-    <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php/sammelbandbeitraege" --></code><br />
-    <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php/herausgeberschaften" --></code><br />
-    <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php/abschlussarbeiten" --></code><br />
-    <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php/uebersetzungen" --></code><br />
-    <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php/andere" --></code>
-  - Publikationslisten für einzelne Jahre:<br />
-    <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php/2014" --></code>
-  - Publikationslisten ab einem bestimmten Jahr:<br />
-    <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php/start-2000" --></code>
-- Konfiguration über /vkdaten/cris.conf (über NavEditor > Erweitert > Konfiguration editierbar):<br />
+
+## Include
+Publikationsliste (automatisch nach Jahren gegliedert):<br />
+<code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php" --></code>
+
+### Mögliche Zusatzoptionen:
+Die verschiedenen Zusatzoptionen können miteinander kombiniert werden. Die Parameter werden dabei mit einem "?" hinter die Include-URL gehängt, mehrere Parameter werden durch "&" getrennt (Beispiele siehe unten).
+
+##### Gliederung
+- <b>orderby=year</b>: Liste nach Jahren absteigend gegliedert (Voreinstellung)
+- <b>orderby=type</b>: Liste nach Publikationstypen gegliedert. Die Reihenfolge der Publikationstypen kann in den Einstellungen nach Belieben festgelegt werden.
+
+##### Filter
+- <b>year=2015</b>: Nur Publikationen aus einem bestimmten Jahr
+- <b>start=2000</b>: Nur Publikationen ab einem bestimmten Jahr
+- <b>pubtype=buecher</b>: Es werden nur Publikationen eines bestimmten Typs angezeigt:
+	- buecher
+    - zeitschriftenartikel
+    - sammelbandbeitraege
+    - herausgeberschaften
+    - konferenzbeitraege
+    - uebersetzungen
+    - abschlussarbeiten
+    - andere
+
+##### ID überschreiben
+Die in den Einstellungen festgelegte CRIS-ID kann überschrieben werden, entweder durch die ID einer anderen Organisationseinheit, oder durch die ID einer einzelnen Person:
+- <b>orga=123456</b> für eine von den Einstellungen abweichende Organisations-ID
+- <b>person=123456</b> für die Publikationsliste einer konkreten Person
+
+#### Beispiele
+- Publikationsliste nach Publikationstypen gegliedert:<br />
+  <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php?orderby=type" --></code>
+- Alle Bücher: <br />
+  <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php?type=buecher" --></code>
+- Alle Publikationen aus dem Jahr 2015, nach Publikationstypen gegliedert:<br />
+  <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php?year=2015&orderby=type" --></code>
+- Publikationslisten ab einem bestimmten Jahr:<br />
+  <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php/start=2000" --></code>
+- Alle Publikationen der Person mit der CRIS-ID 123456 aus dem Jahr 2000, nach Publikationstypen gegliedert
+  <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php?person=123456&year=2000&orderby=pubtype" --></code>
+
+###Konfiguration
+Konfiguration über /vkdaten/cris.conf (über NavEditor > Erweitert > Konfiguration editierbar):<br />
 
 Eintrag | Beispiel | Erklärung |
 | ------------- | ------------- | ------------- |

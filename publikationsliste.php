@@ -1,24 +1,51 @@
 <?php
+
 require_once("class_Tools.php");
 require_once("class_Publikationsliste.php");
 
 include('cache-top.php');
 
-$liste = new Publikationsliste();
-if (isset($_SERVER['PATH_INFO'])) {
-	$param = substr($_SERVER['PATH_INFO'],1);
-	if (is_numeric($param)) {
-		$liste->publikationsjahre($param);
-	} elseif ($param == 'typ') {
-		$liste->pubNachTyp();
-	} elseif (substr($param,0,6) === 'start-') {
-		$start = explode("-", $param)[1];
-		$liste->publikationsjahrestart($start);
-	} else {
-		$liste->publikationstypen($param);
-	}
+$orderby = $_GET["orderby"];
+$pubtype = $_GET["type"];
+$year = $_GET["year"];
+$start = $_GET["start"];
+$orgid = $_GET["orga"];
+$persid = $_GET["person"];
+
+if (isset($orgid) && $orgid != '') {
+	$param1 = 'orga';
+	$param2 = $orgid;
+} elseif (isset($persid) && $persid != '') {
+	$param1 = 'person';
+	$param2 = $persid;
 } else {
-	$liste->pubNachJahr();
+	$param1 = '';
+	$param2 = '';
 }
+if (isset($year) && $year != '') {
+	$filter = 'year';
+	$value = $year;
+} elseif (isset($start) && $start != '') {
+	$filter = 'start';
+	$value = $start;
+} elseif (isset($pubtype) && $pubtype != '') {
+	$filter = 'type';
+	$value = $pubtype;
+} else {
+	$filter = '';
+	$value = '';
+}
+
+$liste = new Publikationsliste($param1, $param2);
+
+if (isset($orderby) && $orderby == 'type') {
+	$output = $liste->pubNachTyp($filter, $value);
+} elseif (isset($orderby) && $orderby == 'year') {
+	$output = $liste->pubNachJahr($filter, $value);
+} else {
+	$output = $liste->pubNachJahr($filter, $value);
+}
+
+echo $output;
 
 include('cache-bottom.php');

@@ -6,8 +6,8 @@ class Tools {
 	public static function getAcronym($acadTitle) {
 		$acronym = '';
 		foreach (explode(' ', $acadTitle) as $actitle) {
-			if (array_key_exists($actitle, Dicts::$acronyms) && Dicts::$acronyms[$actitle] != '') {
-				$acronym .= " " . Dicts::$acronyms[$actitle];
+			if (array_key_exists($actitle, CRIS_Dicts::$acronyms) && CRIS_Dicts::$acronyms[$actitle] != '') {
+				$acronym .= " " . CRIS_Dicts::$acronyms[$actitle];
 			}
 			$acronym = trim($acronym);
 		}
@@ -15,11 +15,11 @@ class Tools {
 	}
 
 	public static function getPubName($pub, $lang) {
-		return Dicts::$pubNames[$pub][$lang];
+		return CRIS_Dicts::$pubNames[$pub][$lang];
 	}
 
 	public static function getPubTranslation($pub) {
-		foreach (Dicts::$pubNames as $pubindex) {
+		foreach (CRIS_Dicts::$pubNames as $pubindex) {
 			//print $pub;
 			//print_r($pubindex['en']);
 			//print_r($pubindex['de']);
@@ -49,9 +49,9 @@ class Tools {
 
 		} catch (Exception $e) {
 			// Something went wrong.
-			$error_message = 'Fehler beim Einlesen der Daten.';
+			$error_message = 'Fehler beim Einlesen der Daten: Bitte überprüfen Sie die CRIS-ID.';
 			foreach(libxml_get_errors() as $error_line) {
-				$error_message .= "\t" . $error_line->message;
+				$error_message .= "<br>" . $error_line->message;
 			}
 			trigger_error($error_message);
 			return false;
@@ -97,4 +97,43 @@ class Tools {
 		return $sort_array;
 	}
 
+	/*
+	 * Publikationen-Array filtern
+	 */
+
+	public static function filter_publications($publications, $filter, $value) {
+
+		$publications_filtered = array();
+
+		switch ($filter){
+			case 'year':
+				foreach($publications as $id => $book) {
+					if($book['publYear'] == $value){
+						$publications_filtered[$id] = $book;
+}
+				}
+				break;
+			case 'start':
+				foreach($publications as $id => $book) {
+					if($book['publYear'] >= $value){
+						$publications_filtered[$id] = $book;
+					}
+				}
+				break;
+			case 'type':
+				$pubTyp = Tools::getPubName($value, "en");
+				$pubTyp_de = Tools::getPubName($value, "de");
+				if (!isset($pubTyp) && !isset($pubTyp_de)) {
+					return "<p>Falscher Parameter</p>";
+				}
+				foreach($publications as $id => $book) {
+					if($book['Publication type'] == $pubTyp){
+						$publications_filtered[$id] = $book;
+					}
+				}
+				break;
+		}
+
+		return $publications_filtered;
+	}
 }
