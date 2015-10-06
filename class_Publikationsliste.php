@@ -17,16 +17,19 @@ class Publikationsliste {
 		$this->pathPersonenseite = $this->options['Pfad_Personenseite'];
 		$this->pathPersonenseiteUnivis = $this->options['Pfad_Personenseite_Univis'];
 		$this->pubOrder = $this->options['Reihenfolge_Publikationen'];
+		$this->crisURL = "https://cris.fau.de/ws-cached/1.0/public/infoobject/";
 
 
 		if ($einheit == "person") {
-			$this->suchstring = 'https://cris.fau.de/ws-cached/1.0/public/infoobject/getautorelated/Person/' . $id . '/PERS_2_PUBL_1';
+			$this->suchstring = $this->crisURL . 'getautorelated/Person/' . $id . '/PERS_2_PUBL_1';
 		} elseif ($einheit == "orga") {
 			// Publikationsliste für Organisationseinheit (überschreibt Orgeinheit aus Einstellungen!!!)
-			$this->suchstring = "https://cris.fau.de/ws-cached/1.0/public/infoobject/getautorelated/Organisation/" . $id . "/ORGA_2_PUBL_1"; //142408
-		} else {
+			$this->suchstring = $this->crisURL . 'getautorelated/Organisation/' . $id . '/ORGA_2_PUBL_1'; //142408
+		} elseif ($einheit == "publication") {
+			$this->suchstring = $this->crisURL . 'get/Publication/' . $id;
+ 		} else {
 			// keine Einheit angegeben -> OrgNr aus Einstellungen verwenden
-			$this->suchstring = "https://cris.fau.de/ws-cached/1.0/public/infoobject/getautorelated/Organisation/" . $orgNr . "/ORGA_2_PUBL_1"; //142408
+			$this->suchstring = $this->crisURL . "getautorelated/Organisation/" . $orgNr . "/ORGA_2_PUBL_1"; //142408
 		}
 
 		$xml = Tools::XML2obj($this->suchstring);
@@ -53,7 +56,7 @@ class Publikationsliste {
 				$this->pubArray[$pubID][$pubAttribut] = $pubDetail;
 			}
 		}
-		$this->pubArray = Tools::record_sortByYear($this->pubArray);
+		//$this->pubArray = Tools::record_sortByYear($this->pubArray);
 
 		// Mitarbeiter dieser Organisationseinheit (damit nur diese später verlinkt werden)
 		$suchstringOrga = 'https://cris.fau.de/ws-cached/1.0/public/infoobject/getrelated/Organisation/' . $orgNr . '/CARD_has_ORGA';
@@ -154,6 +157,34 @@ class Publikationsliste {
 		return $output;
 	} // Ende pubNachTyp()
 
+	public function singlePub() {
+		//print $id;
+		$pubObject = Tools::XML2obj($this->suchstring);
+		$this->publications = $pubObject->attribute;
+		foreach ($this->publications as $attribut) {
+			$this->pubID = (string) $pubObject['id'];
+			if ($attribut['language'] == 1) {
+				$pubAttribut = (string) $attribut['name'] . "_en";
+			} else {
+				$pubAttribut = (string) $attribut['name'];
+			}
+			if ((string) $attribut['disposition'] == 'choicegroup') {
+				$pubDetail = (string) $attribut->additionalInfo;
+			} else {
+				$pubDetail = (string) $attribut->data;
+			}
+			$this->pubArray[$this->pubID][$pubAttribut] = $pubDetail;
+		}
+
+		/*echo "<pre>";
+		//var_dump($pubObject['id']);
+		var_dump($this->pubArray);
+		echo "</pre>";*/
+
+		if (!isset($this->pubArray) || !is_array($this->pubArray)) return;
+		$output = $this->make_list($this->pubArray);
+		return $output;
+	}
 
 	/* =========================================================================
 	 * Private Functions

@@ -11,6 +11,7 @@ $year = $_GET["year"];
 $start = $_GET["start"];
 $orgid = $_GET["orga"];
 $persid = $_GET["person"];
+$publication = $_GET["publication"];
 
 if (isset($orgid) && $orgid != '') {
 	$param1 = 'orga';
@@ -18,6 +19,9 @@ if (isset($orgid) && $orgid != '') {
 } elseif (isset($persid) && $persid != '') {
 	$param1 = 'person';
 	$param2 = $persid;
+} elseif (isset($publication) && $publication !='') {
+			$param1 = 'publication';
+			$param2 = $publication;
 } else {
 	$param1 = '';
 	$param2 = '';
@@ -42,6 +46,8 @@ if (isset($orderby) && $orderby == 'type') {
 	$output = $liste->pubNachTyp($filter, $value);
 } elseif (isset($orderby) && $orderby == 'year') {
 	$output = $liste->pubNachJahr($filter, $value);
+} elseif (isset($publication) && $publication != '') {
+	$output = $liste->singlePub();
 } else {
 	$output = $liste->pubNachJahr($filter, $value);
 }
