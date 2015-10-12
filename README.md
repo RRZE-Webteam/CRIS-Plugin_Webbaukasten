@@ -1,7 +1,7 @@
 CRIS-Plugin_Webbaukasten
 ========================
 
-Version 1.5 (Stand 06.10.2015)
+Version 1.51 (Stand 12.10.2015)
 
 Einbinden von Daten aus der FAU-Forschungsdatenbank <b>CRIS</b> in Webseiten
 
