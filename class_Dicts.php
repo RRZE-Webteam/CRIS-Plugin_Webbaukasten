@@ -40,5 +40,3 @@ class CRIS_Dicts {
 		"andere"
 	);
 }
-
-?>

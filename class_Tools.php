@@ -133,8 +133,10 @@ class Tools {
 	public static function filter_publications($publications, $year = '', $start = '', $type = '') {
 
 		$publications_filtered = array();
-		$pubTyp = Tools::getPubName($type, "en");
-		$pubTyp_de = Tools::getPubName($type, "de");
+		if (!empty($type)) {
+			$pubTyp = Tools::getPubName($type, "en");
+			$pubTyp_de = Tools::getPubName($type, "de");
+		}
 		if (!empty($type) && !isset($pubTyp_de)) {
 			return "<p>Falscher Parameter</p>";
 		}
