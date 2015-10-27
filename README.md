@@ -24,7 +24,7 @@ Die verschiedenen Zusatzoptionen können miteinander kombiniert werden. Die Para
 ##### Filter
 - <b>year=2015</b>: Nur Publikationen aus einem bestimmten Jahr
 - <b>start=2000</b>: Nur Publikationen ab einem bestimmten Jahr
-- <b>pubtype=buecher</b>: Es werden nur Publikationen eines bestimmten Typs angezeigt:
+- <b>type=buecher</b>: Es werden nur Publikationen eines bestimmten Typs angezeigt:
 	- buecher
     - zeitschriftenartikel
     - sammelbandbeitraege
@@ -34,7 +34,7 @@ Die verschiedenen Zusatzoptionen können miteinander kombiniert werden. Die Para
     - abschlussarbeiten
     - andere
 - <b>publication="12345678"</b>: Nur eine einzelne Publikation (hier die CRIS-ID der Publikation angeben)
-- Filter lassen sich auch kombinieren: z.B. year=2014&pubtype=buecher (= alle Bücher aus 2014)
+- Filter lassen sich auch kombinieren: z.B. year=2014&type=buecher (= alle Bücher aus 2014)
 
 ##### ID überschreiben
 Die in den Einstellungen festgelegte CRIS-ID kann überschrieben werden, entweder durch die ID einer anderen Organisationseinheit, oder durch die ID einer einzelnen Person:
