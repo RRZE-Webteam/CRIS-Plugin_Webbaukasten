@@ -71,14 +71,15 @@ class Publikationsliste {
 	 * Ausgabe aller Publikationen nach Jahren gegliedert
 	 */
 
-	public function pubNachJahr($filter = '', $value = '') {
+	public function pubNachJahr($year = '', $start = '', $type = '') {
 		if (!isset($this->pubArray) || !is_array($this->pubArray)) return;
 
 		$pubByYear = array();
 		$output = '';
+
 		// Publikationen filtern
-		if ($filter !='' && $value !='') {
-			$publications = Tools::filter_publications($this->pubArray, $filter, $value);
+		if ($year !='' || $start !='' || $type != '') {
+			$publications = Tools::filter_publications($this->pubArray, $year, $start, $type);
 		} else {
 			$publications = $this->pubArray;
 		}
@@ -102,9 +103,9 @@ class Publikationsliste {
 		rsort($keys);
 		$pubByYear = Tools::sort_key($pubByYear, $keys);
 
-		foreach ($pubByYear as $year => $publications) {
-			if ($filter != 'year') {
-				$output .= '<h3>' . $year . '</h3>';
+		foreach ($pubByYear as $array_year => $publications) {
+			if (empty($year)) {
+				$output .= '<h3>' . $array_year . '</h3>';
 			}
 			$output .= $this->make_list($publications);
 		}
@@ -115,15 +116,15 @@ class Publikationsliste {
 	 * Ausgabe aller Publikationen nach Publikationstypen gegliedert
 	 */
 
-	public function pubNachTyp($filter = '', $value = '') {
+	public function pubNachTyp($year = '', $start = '', $type = '') {
 		if (!isset($this->pubArray) || !is_array($this->pubArray)) return;
 
 		$pubByType = array();
 		$output = '';
 
 		// Publikationen filtern
-		if ($filter !='' && $value !='') {
-			$publications = Tools::filter_publications($this->pubArray, $filter, $value);
+		if ($year !='' || $start !='' || $type != '') {
+			$publications = Tools::filter_publications($this->pubArray, $year, $start, $type);
 		} else {
 			$publications = $this->pubArray;
 		}
@@ -141,6 +142,7 @@ class Publikationsliste {
 				}
 			}
 		}
+
 		// Publikationstypen sortieren
 		$order = explode("|", $this->pubOrder);
 		if ($order[0] != ''  && array_key_exists($order[0],CRIS_Dicts::$pubNames)) {
@@ -151,17 +153,24 @@ class Publikationsliste {
 		} else {
 			$pubByType = Tools::sort_key($pubByType, CRIS_Dicts::$pubOrder);
 		}
-		foreach ($pubByType as $type => $publications) {
-			$title = Tools::getPubTranslation($type);
-			if ($filter != 'type') {
+		foreach ($pubByType as $array_type => $publications) {
+			$title = Tools::getPubTranslation($array_type);
+
+			// Zwischenüberschrift (= Publikationstyp), außer wenn nur ein Typ gefiltert wurde
+			if (empty($type)) {
 				$output .= "<h3>";
 				$output .= $title;
 				$output .= "</h3>";
 			}
+
+			// innerhalb des Publikationstyps nach Jahr abwärts sortieren
+			$publications = Tools::array_msort($publications, array('publYear' => SORT_DESC));
+
 			$output .= $this->make_list($publications);
 		}
 		return $output;
 	} // Ende pubNachTyp()
+
 
 	public function singlePub() {
 		//print $id;

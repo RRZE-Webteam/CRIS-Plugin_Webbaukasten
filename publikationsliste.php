@@ -26,30 +26,17 @@ if (isset($orgid) && $orgid != '') {
 	$param1 = '';
 	$param2 = '';
 }
-if (isset($year) && $year != '') {
-	$filter = 'year';
-	$value = $year;
-} elseif (isset($start) && $start != '') {
-	$filter = 'start';
-	$value = $start;
-} elseif (isset($pubtype) && $pubtype != '') {
-	$filter = 'type';
-	$value = $pubtype;
-} else {
-	$filter = '';
-	$value = '';
-}
 
 $liste = new Publikationsliste($param1, $param2);
 
 if (isset($orderby) && $orderby == 'type') {
-	$output = $liste->pubNachTyp($filter, $value);
+	$output = $liste->pubNachTyp($year, $start, $pubtype);
 } elseif (isset($orderby) && $orderby == 'year') {
-	$output = $liste->pubNachJahr($filter, $value);
+	$output = $liste->pubNachJahr($year, $start, $pubtype);
 } elseif (isset($publication) && $publication != '') {
 	$output = $liste->singlePub();
 } else {
-	$output = $liste->pubNachJahr($filter, $value);
+	$output = $liste->pubNachJahr($year, $start, $pubtype);
 }
 
 echo $output;

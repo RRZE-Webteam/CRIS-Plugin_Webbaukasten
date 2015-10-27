@@ -1,7 +1,7 @@
 CRIS-Plugin_Webbaukasten
 ========================
 
-Version 1.51 (Stand 12.10.2015)
+Version 1.6 (Stand 27.10.2015)
 
 Einbinden von Daten aus der FAU-Forschungsdatenbank <b>CRIS</b> in Webseiten
 
@@ -34,6 +34,7 @@ Die verschiedenen Zusatzoptionen können miteinander kombiniert werden. Die Para
     - abschlussarbeiten
     - andere
 - <b>publication="12345678"</b>: Nur eine einzelne Publikation (hier die CRIS-ID der Publikation angeben)
+- Filter lassen sich auch kombinieren: z.B. year=2014&pubtype=buecher (= alle Bücher aus 2014)
 
 ##### ID überschreiben
 Die in den Einstellungen festgelegte CRIS-ID kann überschrieben werden, entweder durch die ID einer anderen Organisationseinheit, oder durch die ID einer einzelnen Person:
