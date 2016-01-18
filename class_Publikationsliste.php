@@ -275,7 +275,7 @@ class Publikationsliste {
 			$output .= ($pubDetails['pubType'] == 'Editorial' ? ' (Hrsg.):' : ':');
 
 			$output .= "<br /><span class=\"title\"><b>"
-			. "<a href=\"http://cris.fau.de/converis/publicweb/Publication/" . $id
+			. "<a href=\"https://cris.fau.de/converis/publicweb/Publication/" . $id
 			. "\" target=\"blank\" title=\"Detailansicht in neuem Fenster &ouml;ffnen\">"
 			. $pubDetails['title']
 			. "</a>"

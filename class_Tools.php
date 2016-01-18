@@ -49,11 +49,13 @@ class Tools {
 
 		} catch (Exception $e) {
 			// Something went wrong.
+			print '<p>';
 			$error_message = 'Fehler beim Einlesen der Daten: Bitte überprüfen Sie die CRIS-ID.';
 			foreach(libxml_get_errors() as $error_line) {
 				$error_message .= "<br>" . $error_line->message;
 			}
 			trigger_error($error_message);
+			print '</p>';
 			return false;
 		}
 		return $xmlTree;
@@ -172,5 +174,4 @@ class Tools {
 		return $awards_filtered;
 	}
 
-	
 }
