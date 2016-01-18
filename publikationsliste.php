@@ -1,16 +1,35 @@
 <?php
 
 require_once("class_Tools.php");
-require_once("class_Publikationsliste.php");
+require_once("class_Publikationen.php");
 
 include('cache-top.php');
 
-$orderby = $_GET["orderby"];
-$pubtype = $_GET["type"];
-$year = $_GET["year"];
-$start = $_GET["start"];
-$orgid = $_GET["orga"];
-$persid = $_GET["person"];
+$show = isset($_GET['show']) ? $_GET['show'] : CRIS_Dicts::$defaults['show'];
+$orderby = isset($_GET['orderby']) ? $_GET['orderby'] : CRIS_Dicts::$defaults['orderby'];
+$year = isset($_GET['year']) ? $_GET['year'] : CRIS_Dicts::$defaults['year'];
+$start = isset($_GET['start']) ? $_GET['start'] : CRIS_Dicts::$defaults['start'];
+if (isset($_GET['pubtype'])) {
+	$type = $_GET['pubtype'];
+} elseif (isset($_GET['type'])) {
+	$type = $_GET['type'];
+} else {
+	$type = CRIS_Dicts::$defaults['type'];
+}
+if (isset($_GET['orga'])) {
+	$orgid = $_GET['orga'];
+} elseif (isset($_GET['orgid'])) {
+	$orgid = $_GET['orgid'];
+} else {
+	$orgid = CRIS_Dicts::$defaults['orgid'];
+}
+if (isset($_GET['person'])) {
+	$persid = $_GET['person'];
+} elseif (isset($_GET['persid'])) {
+	$persid = $_GET['persid'];
+} else {
+	$persid = CRIS_Dicts::$defaults['persid'];
+}
 $publication = $_GET["publication"];
 
 if (isset($orgid) && $orgid != '') {
@@ -27,16 +46,16 @@ if (isset($orgid) && $orgid != '') {
 	$param2 = '';
 }
 
-$liste = new Publikationsliste($param1, $param2);
+$liste = new Publikationen($param1, $param2);
 
 if (isset($orderby) && $orderby == 'type') {
-	$output = $liste->pubNachTyp($year, $start, $pubtype);
+	$output = $liste->pubNachTyp($year, $start, $type);
 } elseif (isset($orderby) && $orderby == 'year') {
-	$output = $liste->pubNachJahr($year, $start, $pubtype);
+	$output = $liste->pubNachJahr($year, $start, $type);
 } elseif (isset($publication) && $publication != '') {
 	$output = $liste->singlePub();
 } else {
-	$output = $liste->pubNachJahr($year, $start, $pubtype);
+	$output = $liste->pubNachJahr($year, $start, $type);
 }
 
 echo $output;

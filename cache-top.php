@@ -1,4 +1,6 @@
 <?php
+require_once('class_CRIS.php');
+
 $url = $_SERVER["REQUEST_URI"];
 $break = Explode('/', $url);
 $file = $break[count($break) - 2] . "-" . $break[count($break) - 1];
@@ -14,4 +16,3 @@ if (file_exists($cachefile) && time() - $cachetime < filemtime($cachefile)) {
     exit;
 }
 ob_start(); // Start the output buffer
-?>

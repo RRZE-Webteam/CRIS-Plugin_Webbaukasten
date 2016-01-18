@@ -3,7 +3,7 @@
 require_once("class_Tools.php");
 require_once("class_CRIS.php");
 
-class Awards {
+class Auszeichnungen {
 	private $options;
 	public $output;
 
@@ -16,7 +16,7 @@ class Awards {
 		$this->suchstring = '';
 
 		if((!$orgNr||$orgNr==0) && $id=='') {
-            print '<p><strong>' . __('Bitte geben Sie die CRIS-ID der Organisation, Person oder Auszeichnung an.','fau-cris') . '</strong></p>';
+            print '<p><strong>Bitte geben Sie die CRIS-ID der Organisation, Person oder Auszeichnung an.</strong></p>';
 			return;
         }
 
@@ -93,13 +93,16 @@ class Awards {
 
 		// Awards filtern
 		if ($year !='' || $start !='' || $type != '') {
+			if ($type != '') {
+				$type = CRIS_Dicts::$awardNames[$type]['de'];
+			}
 			$awards = Tools::filter_awards($this->awardArray, $year, $start, $type);
 		} else {
 			$awards = $this->awardArray;
 		}
 
 		if (empty($awards)) {
-			$output .= '<p>' . __('Es wurden leider keine Auszeichnungen gefunden.','fau-cris') . '</p>';
+			$output .= '<p>Es wurden leider keine Auszeichnungen gefunden.</p>';
 			return $output;
 		}
 
@@ -125,13 +128,16 @@ class Awards {
 
 		// Awards filtern
 		if ($year !='' || $start !='' || $type != '') {
+			if ($type != '') {
+				$type = CRIS_Dicts::$awardNames[$type]['de'];
+			}
 			$awards = Tools::filter_awards($this->awardArray, $year, $start, $type);
 		} else {
 			$awards = $this->awardArray;
 		}
 
 		if (empty($awards)) {
-			$output .= '<p>' . __('Es wurden leider keine Auszeichnungen gefunden.','fau-cris') . '</p>';
+			$output .= '<p>Es wurden leider keine Auszeichnungen gefunden.</p>';
 			return $output;
 		}
 
@@ -173,13 +179,17 @@ class Awards {
 
 		// Awards filtern
 		if ($year !='' || $start !='' || $type != '') {
+			if ($type != '') {
+				$type = CRIS_Dicts::$awardNames[$type]['de'];
+			}
+
 			$awards = Tools::filter_awards($this->awardArray, $year, $start, $type);
 		} else {
 			$awards = $this->awardArray;
 		}
 
 		if (empty($awards)) {
-			$output .= '<p>' . __('Es wurden leider keine Auszeichnungen gefunden.','fau-cris') . '</p>';
+			$output .= '<p>Es wurden leider keine Auszeichnungen gefunden.</p>';
 			return $output;
 		}
 

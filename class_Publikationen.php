@@ -4,7 +4,7 @@ require_once('class_CRIS.php');
 require_once("class_Tools.php");
 
 
-class Publikationsliste {
+class Publikationen {
 
 	private $pathPersonenseite;
 	private $options;
@@ -85,7 +85,7 @@ class Publikationsliste {
 		}
 
 		if (empty($publications)) {
-			$output .= '<p>' . __('Es wurden leider keine Publikationen gefunden.','fau-cris') . '</p>';
+			$output .= '<p>Es wurden leider keine Publikationen gefunden.</p>';
 			return $output;
 		}
 
@@ -132,7 +132,7 @@ class Publikationsliste {
 		}
 
 		if (empty($publications)) {
-			$output .= '<p>' . __('Es wurden leider keine Publikationen gefunden.','fau-cris') . '</p>';
+			$output .= '<p>Es wurden leider keine Publikationen gefunden.</p>';
 			return $output;
 		}
 

@@ -1,16 +1,22 @@
 <?php
 
 require_once("class_Tools.php");
-require_once("class_Dicts.php");
+require_once("class_Publikationen.php");
 
 include('cache-top.php');
 
+// Get-Parameter auslesen
 $show = isset($_GET['show']) ? $_GET['show'] : CRIS_Dicts::$defaults['show'];
 $orderby = isset($_GET['orderby']) ? $_GET['orderby'] : CRIS_Dicts::$defaults['orderby'];
-$pubtype = isset($_GET['pubtype']) ? $_GET['pubtype'] : CRIS_Dicts::$defaults['pubtype'];
-$type = isset($_GET['type']) ? $_GET['type'] : CRIS_Dicts::$defaults['type'];
 $year = isset($_GET['year']) ? $_GET['year'] : CRIS_Dicts::$defaults['year'];
 $start = isset($_GET['start']) ? $_GET['start'] : CRIS_Dicts::$defaults['start'];
+if (isset($_GET['pubtype'])) {
+	$type = $_GET['pubtype'];
+} elseif (isset($_GET['type'])) {
+	$type = $_GET['type'];
+} else {
+	$type = CRIS_Dicts::$defaults['type'];
+}
 if (isset($_GET['orga'])) {
 	$orgid = $_GET['orga'];
 } elseif (isset($_GET['orgid'])) {
@@ -31,6 +37,7 @@ $showname = isset($_GET['showname']) ? $_GET['showname'] : CRIS_Dicts::$defaults
 $showyear = isset($_GET['showyear']) ? $_GET['showyear'] : CRIS_Dicts::$defaults['showyear'];
 $display = isset($_GET['display']) ? $_GET['display'] : CRIS_Dicts::$defaults['display'];
 
+// Filterkriterien
 if (isset($publication) && $publication != '') {
 	$param1 = 'publication';
 	$param2 = $publication;
@@ -48,16 +55,32 @@ if (isset($publication) && $publication != '') {
 	$param2 = '';
 }
 
-require_once('class_Auszeichnungen.php');
-$liste = new Auszeichnungen($param1, $param2, $display);
-if (isset($orderby) && $orderby == 'type') {
-	$output = $liste->awardsNachTyp($year, $start, $type, $showname, $showyear, $display);
-} elseif (isset($orderby) && $orderby == 'year') {
-	$output = $liste->awardsNachJahr($year, $start, $type, $showname, $showyear, $display);
-} elseif (isset($award) && $award != '') {
-	$output = $liste->singleAward($showname, $showyear, $display);
+// Ausgabe
+if (isset($show) && $show == 'awards') {
+	// Awards
+	require_once('class_Auszeichnungen.php');
+	$liste = new Auszeichnungen($param1, $param2, $display);
+	if (isset($orderby) && $orderby == 'type') {
+		$output = $liste->awardsNachTyp($year, $start, $type, $showname, $showyear, $display);
+	} elseif (isset($orderby) && $orderby == 'year') {
+		$output = $liste->awardsNachJahr($year, $start, $type, $showname, $showyear, $display);
+	} elseif (isset($award) && $award != '') {
+		$output = $liste->singleAward($showname, $showyear, $display);
+	} else {
+		$output = $liste->awardsListe($year, $start, $type, $showname, $showyear, $display);
+	}
 } else {
-	$output = $liste->awardsListe($year, $start, $type, $showname, $showyear, $display);
+	// Publications
+	$liste = new Publikationen($param1, $param2);
+	if (isset($orderby) && $orderby == 'type') {
+		$output = $liste->pubNachTyp($year, $start, $type);
+	} elseif (isset($orderby) && $orderby == 'year') {
+		$output = $liste->pubNachJahr($year, $start, $type);
+	} elseif (isset($publication) && $publication != '') {
+		$output = $liste->singlePub();
+	} else {
+		$output = $liste->pubNachJahr($year, $start, $type);
+	}
 }
 
 echo $output;
