@@ -49,11 +49,13 @@ class Tools {
 
 		} catch (Exception $e) {
 			// Something went wrong.
+			print '<p>';
 			$error_message = 'Fehler beim Einlesen der Daten: Bitte überprüfen Sie die CRIS-ID.';
 			foreach(libxml_get_errors() as $error_line) {
 				$error_message .= "<br>" . $error_line->message;
 			}
 			trigger_error($error_message);
+			print '</p>';
 			return false;
 		}
 		return $xmlTree;
@@ -152,4 +154,24 @@ class Tools {
 		}
 		return $publications_filtered;
 	}
+
+	/*
+	 * Awards-Array filtern
+	 */
+
+	public static function filter_awards($awards, $year = '', $start = '', $type = '') {
+
+		$awards_filtered = array();
+		foreach($awards as $id => $award) {
+			if(
+				(empty($year) || $award['Year award'] == $year) &&
+				(empty($start) || $award['Year award'] >= $start) &&
+				(empty($type) || $award['Type of award'] == $type)
+			){
+				$awards_filtered[$id] = $award;
+			}
+		}
+		return $awards_filtered;
+	}
+
 }

@@ -1,47 +1,67 @@
 CRIS-Plugin_Webbaukasten
 ========================
 
-Version 1.61 (Stand 28.10.2015)
+Version 1.71 (Stand 02.02.2016)
 
-Einbinden von Daten aus der FAU-Forschungsdatenbank <b>CRIS</b> in Webseiten
+Einbinden von Daten aus dem FAU-Forschungsinformationssystem <b>CRIS</b> in Webseiten
 
-Für die Publikationslisten lassen sich über Parameter verschiedene Ausgabeformen einstellen. Die Titel sind jeweils mit der Detailansicht der Publikation auf http://cris.fau.de verlinkt.
+Aktuell werden folgende in CRIS erfasste Forschungsleistungen unterstützt:
+- Publikationen
+- Auszeichnungen
 
 ## Installation
 - Installation analog zu den übrigen Webbaukasten-Plugins in /vkdaten/tools/cris/
 
 ## Include
-Publikationsliste (automatisch nach Jahren gegliedert):<br />
-<code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php" --></code>
+- Publikationsliste (automatisch nach Jahren gegliedert):<br />
+  <code><!--#include virtual="/vkdaten/tools/cris/cris.php?show=publications" --></code>
+- Auszeichnungen (automatisch nach Jahren sortiert):<br />
+  <code><!--#include virtual="/vkdaten/tools/cris/cris.php?show=awards" --></code>
 
-### Mögliche Zusatzoptionen:
+## Mögliche Zusatzoptionen:
 Die verschiedenen Zusatzoptionen können miteinander kombiniert werden. Die Parameter werden dabei mit einem "?" hinter die Include-URL gehängt, mehrere Parameter werden durch "&" getrennt (Beispiele siehe unten).
 
-##### Gliederung
-- <b>orderby=year</b>: Liste nach Jahren absteigend gegliedert (Voreinstellung)
-- <b>orderby=type</b>: Liste nach Publikationstypen gegliedert. Die Reihenfolge der Publikationstypen kann in den Einstellungen nach Belieben festgelegt werden.
+### Gliederung
+- <b>orderby=year</b>: Liste nach Jahren absteigend gegliedert (Voreinstellung bei Publikationen)
+- <b>orderby=type</b>: Liste nach Publikations- bzw. Auszeichnungstypen gegliedert. Die Reihenfolge kann in den Einstellungen nach Belieben festgelegt werden.
 
 ##### Filter
-- <b>year=2015</b>: Nur Publikationen aus einem bestimmten Jahr
-- <b>start=2000</b>: Nur Publikationen ab einem bestimmten Jahr
-- <b>type=buecher</b>: Es werden nur Publikationen eines bestimmten Typs angezeigt:
-	- buecher
-    - zeitschriftenartikel
-    - sammelbandbeitraege
-    - herausgeberschaften
-    - konferenzbeitraege
-    - uebersetzungen
-    - abschlussarbeiten
-    - andere
-- <b>publication="12345678"</b>: Nur eine einzelne Publikation (hier die CRIS-ID der Publikation angeben)
-- Filter lassen sich auch kombinieren: z.B. year=2014&type=buecher (= alle Bücher aus 2014)
+- <b>year=2015</b>: Nur Einträge aus einem bestimmten Jahr
+- <b>start=2000</b>: Nur Einträge ab einem bestimmten Jahr
+- <b>type=XXX</b>: Es werden nur Einträge eines bestimmten Typs angezeigt:
+	- Publikationen:
+		- buecher
+		- zeitschriftenartikel
+		- sammelbandbeitraege
+		- herausgeberschaften
+		- konferenzbeitraege
+		- uebersetzungen
+		- abschlussarbeiten
+		- andere
+	- Auszeichnungen:
+		- preise
+		- stipendien
+		- mitgliedschaften
+		- andere
+- <b>publication=12345678</b>: Nur eine einzelne Publikation (hier die CRIS-ID der Publikation angeben)
+- <b>award=12345678</b>: Nur eine einzelne Auszeichnung (hier die CRIS-ID der Auszeichnung angeben)
+- Filter lassen sich auch kombinieren: z.B. year=2014&type=buecher (= alle Bücher aus dem Jahr 2014)
 
-##### ID überschreiben
+### Darstellung
+
+#### Publikationen
+- <b>quotation=apa</b> bzw. <b>quotation=mla</b>: Ausgabe im Zitationsstil APA bzw. MLA
+
+#### Auszeichnungen
+- <b>display=gallery</b>: Bildergalerie mit Bild des Preisträgers und Angaben zum Preis
+- <b>showname=0</b> oder <b>showyear=0</b>: Name des Preisträgers bzw. Jahreszahl wird nicht angezeigt. Das kann z.B. bei Darstellungen auf einer Personenprofilseite bzw. in der nach Jahren gegliederten Ansicht sinnvoll sein.
+
+### ID überschreiben
 Die in den Einstellungen festgelegte CRIS-ID kann überschrieben werden, entweder durch die ID einer anderen Organisationseinheit, oder durch die ID einer einzelnen Person:
 - <b>orga=123456</b> für eine von den Einstellungen abweichende Organisations-ID
-- <b>person=123456</b> für die Publikationsliste einer konkreten Person
+- <b>person=123456</b> für die Publikationen bzw. Auszeichnungen einer konkreten Person
 
-#### Beispiele
+## Beispiele
 - Publikationsliste nach Publikationstypen gegliedert:<br />
   <code><!--#include virtual="/vkdaten/tools/cris/publikationsliste.php?orderby=type" --></code>
 - Alle Bücher: <br />
@@ -59,7 +79,8 @@ Konfiguration über /vkdaten/cris.conf (über NavEditor > Erweitert > Konfigurat
 Eintrag | Beispiel | Erklärung |
 | ------------- | ------------- | ------------- |
 CRISOrgNr | 1234567 | CRIS-Organisationsnummer |
-Reihenfolge_Publikationen | Journal article&#124;Article in edited volumes&#124;Translation&#124;Book&#124;Editorial&#124;Conference Contribution&#124;Thesis&#124;Other | Reihenfolge, wenn die Publikationsliste nach Publikationstypen gegliedert werden soll|
+Reihenfolge_Publikationen | konferenzbeitraege&#124;zeitschriftenartikel&#124;buecher&#124;sammelbandbeitraege&#124;uebersetzungen&#124;herausgeberschaften&#124;abschlussarbeiten&#124;andere | Reihenfolge, wenn die Publikationsliste nach Publikationstypen gegliedert werden soll|
 Pfad_Personenseite | /cris/person.shtml | für Links von Publikations- und Mitarbeiterlisten auf Personen-Detailseite |
 Personeninfo_Univis | 1 | In Publikationslisten Autoren mit ihrer UnivIS-Personenseite verlinken?; 1=ja, 0=nein; UnivIS-Plugin muss installiert und eingerichtet sein |
 Pfad_Personenseite_Univis | /wir-ueber-uns/mitarbeiter/mitarbeiter.shtml | Pfad zur UnivIS-Personenseite |
+Reihenfolge_Auszeichnungen | preise&#124;stipendien&#124;mitgliedschaften&#124;andere | Reihenfolge, wenn die Auszeichnungen nach Typen gegliedert werden sollen|
