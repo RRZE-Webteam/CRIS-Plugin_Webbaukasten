@@ -32,6 +32,7 @@ if (isset($_GET['person'])) {
 	$persid = CRIS_Dicts::$defaults['persid'];
 }
 $publication = isset($_GET['publication']) ? $_GET['publication'] : CRIS_Dicts::$defaults['publication'];
+$quotation = isset($_GET['quotation']) ? $_GET['quotation'] : CRIS_Dicts::$defaults['quotation'];
 $award = isset($_GET['award']) ? $_GET['award'] : CRIS_Dicts::$defaults['award'];
 $showname = isset($_GET['showname']) ? $_GET['showname'] : CRIS_Dicts::$defaults['showname'];
 $showyear = isset($_GET['showyear']) ? $_GET['showyear'] : CRIS_Dicts::$defaults['showyear'];
@@ -73,13 +74,13 @@ if (isset($show) && $show == 'awards') {
 	// Publications
 	$liste = new Publikationen($param1, $param2);
 	if (isset($orderby) && $orderby == 'type') {
-		$output = $liste->pubNachTyp($year, $start, $type);
+		$output = $liste->pubNachTyp($year, $start, $type, $quotation);
 	} elseif (isset($orderby) && $orderby == 'year') {
-		$output = $liste->pubNachJahr($year, $start, $type);
+		$output = $liste->pubNachJahr($year, $start, $type, $quotation);
 	} elseif (isset($publication) && $publication != '') {
-		$output = $liste->singlePub();
+		$output = $liste->singlePub($quotation);
 	} else {
-		$output = $liste->pubNachJahr($year, $start, $type);
+		$output = $liste->pubNachJahr($year, $start, $type, $quotation);
 	}
 }
 

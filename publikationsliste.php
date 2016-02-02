@@ -31,6 +31,8 @@ if (isset($_GET['person'])) {
 	$persid = CRIS_Dicts::$defaults['persid'];
 }
 $publication = $_GET["publication"];
+$quotation = isset($_GET['quotation']) ? $_GET['quotation'] : CRIS_Dicts::$defaults['quotation'];
+
 
 if (isset($orgid) && $orgid != '') {
 	$param1 = 'orga';
@@ -49,13 +51,13 @@ if (isset($orgid) && $orgid != '') {
 $liste = new Publikationen($param1, $param2);
 
 if (isset($orderby) && $orderby == 'type') {
-	$output = $liste->pubNachTyp($year, $start, $type);
+	$output = $liste->pubNachTyp($year, $start, $type, $quotation);
 } elseif (isset($orderby) && $orderby == 'year') {
-	$output = $liste->pubNachJahr($year, $start, $type);
+	$output = $liste->pubNachJahr($year, $start, $type, $quotation);
 } elseif (isset($publication) && $publication != '') {
-	$output = $liste->singlePub();
+	$output = $liste->singlePub($quotation);
 } else {
-	$output = $liste->pubNachJahr($year, $start, $type);
+	$output = $liste->pubNachJahr($year, $start, $type, $quotation);
 }
 
 echo $output;
