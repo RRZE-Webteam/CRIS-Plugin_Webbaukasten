@@ -34,6 +34,7 @@ if (isset($_GET['person'])) {
 $publication = isset($_GET['publication']) ? $_GET['publication'] : CRIS_Dicts::$defaults['publication'];
 $quotation = isset($_GET['quotation']) ? $_GET['quotation'] : CRIS_Dicts::$defaults['quotation'];
 $award = isset($_GET['award']) ? $_GET['award'] : CRIS_Dicts::$defaults['award'];
+$awardnameid = isset($_GET['awardnameid']) ? $_GET['awardnameid'] : '';
 $showname = isset($_GET['showname']) ? $_GET['showname'] : CRIS_Dicts::$defaults['showname'];
 $showyear = isset($_GET['showyear']) ? $_GET['showyear'] : CRIS_Dicts::$defaults['showyear'];
 $display = isset($_GET['display']) ? $_GET['display'] : CRIS_Dicts::$defaults['display'];
@@ -45,6 +46,9 @@ if (isset($publication) && $publication != '') {
 } elseif (isset($award) && $award != '') {
 	$param1 = 'award';
 	$param2 = $award;
+} elseif (isset($awardnameid) && $awardnameid !='') {
+	$param1 = 'awardnameid';
+	$param2 = $awardnameid;
 } elseif (isset($persid) && $persid != '') {
 	$param1 = 'person';
 	$param2 = $persid;
@@ -67,6 +71,8 @@ if (isset($show) && $show == 'awards') {
 		$output = $liste->awardsNachJahr($year, $start, $type, $showname, $showyear, $display);
 	} elseif (isset($award) && $award != '') {
 		$output = $liste->singleAward($showname, $showyear, $display);
+	} elseif (isset($awardnameid) && $awardnameid != '') {
+		$output = $liste->awardsListe($year, $start, $type, $showname, $showyear, $display, $awardnameid);
 	} else {
 		$output = $liste->awardsListe($year, $start, $type, $showname, $showyear, $display);
 	}
