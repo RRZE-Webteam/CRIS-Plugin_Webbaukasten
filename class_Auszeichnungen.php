@@ -28,6 +28,8 @@ class Auszeichnungen {
 			$this->suchstring = $this->crisURL . "getautorelated/Organisation/" . $id . "/ORGA_3_AWAR_1"; //142534
 		} elseif ($id !='' && $einheit == "award") {
 			$this->suchstring = $this->crisURL . 'get/Award/' . $id;
+		} elseif ($id !='' && $einheit == "awardnameid") {
+			$this->suchstring = $this->crisURL . "getrelated/Award%20Type/" . $id . "/awar_has_awat"; //222
 		} else {
 			// keine Einheit angegeben -> OrgNr aus Einstellungen verwenden
 			$this->suchstring = $this->crisURL . "getautorelated/Organisation/" . $orgNr . "/ORGA_3_AWAR_1"; //142534
@@ -63,32 +65,13 @@ class Auszeichnungen {
 				}
 
 			}
-
-			// Bild suchen
-			if ($einheit != "award" && $display == 'gallery') {
-				$picString = "https://cris.fau.de/ws-cached/1.0/public/infoobject/getrelated/Award/" . $this->awardID . "/awar_has_pict";
-				$picXml = Tools::XML2obj($picString);
-				//var_dump($picXml['size']);
-				if($picXml['size']== 0) {
-					$pic = '';
-				} else {
-					foreach ($picXml->infoObject->attribute as $picAttribut) {
-						if ($picAttribut['name'] == 'Content') {
-							$pic = 'data:image/JPEG;base64,' . $picAttribut->data;
-						}
-					}
-				}
-				$this->awardArray[$this->awardID]['pic'] = $pic;
-			}
-
 		}
 	}
 
 
-	public function awardsListe($year = '', $start = '', $type = '', $showname = 1, $showyear = 1, $display = 'list') {
+	public function awardsListe($year = '', $start = '', $type = '', $showname = 1, $showyear = 1, $display = 'list', $awardnameid='') {
 		if (!isset($this->awardArray) || !is_array($this->awardArray)) return;
 
-		$awardsByYear = array();
 		$output = '';
 
 		// Awards filtern
@@ -110,10 +93,16 @@ class Auszeichnungen {
 		$awardsSorted = Tools::array_msort($awards, array('Year award'=>SORT_DESC));
 
 		// Ausgabe
+		$showawardname = 1;
+		if ($awardnameid != '') {
+			$title = reset($awardsSorted)['award_name'];
+			$output .= '<h3 class="clearfix clear">'. $title . '</h3>';
+			$showawardname = 0;
+		}
 		if ($display == 'gallery') {
-			$output = $this->make_gallery($awardsSorted, $showname, $showyear);
+			$output .= $this->make_gallery($awardsSorted, $showname, $showyear, $showawardname);
 		} else {
-			$output = $this->make_list($awardsSorted, $showname, $showyear);
+			$output .= $this->make_list($awardsSorted, $showname, $showyear, $showawardname);
 		}
 
 		return $output;
@@ -158,7 +147,7 @@ class Auszeichnungen {
 		// Ausgabe
 		foreach ($awardsByYear as $array_year => $awards) {
 			if (empty($year)) {
-				$output .= '<h3>' . $array_year . '</h3>';
+				$output .= '<h3 class="clearfix clear">' . $array_year . '</h3>';
 			}
 			if ($display == 'gallery') {
 				$output .= $this->make_gallery($awards, $showname, $showyear);
@@ -217,7 +206,7 @@ class Auszeichnungen {
 		// Ausgabe
 		foreach ($awardsByType as $array_type => $awards) {
 			if (empty($year)) {
-				$output .= '<h3>' . $array_type . '</h3>';
+				$output .= '<h3 class="clearfix clear">' . $array_type . '</h3>';
 			}
 			// innerhalb des Awardtyps nach Jahr abwärts sortieren
 			$awards = Tools::array_msort($awards, array('Year award' => SORT_DESC));
@@ -249,19 +238,6 @@ class Auszeichnungen {
 				$awardDetail = (string) $attribut->data;
 			}
 			$awardArray[$awardID][$awardAttribut] = $awardDetail;
-
-			if ($display == 'gallery') {
-				$picString = "https://cris.fau.de/ws-cached/1.0/public/infoobject/getrelated/Award/" . $awardID . "/awar_has_pict";
-				$picXml = Tools::XML2obj($picString);
-				foreach ($picXml->infoObject->attribute as $picAttribut) {
-					if ($picAttribut['name'] == 'Content') {
-						$pic = $picAttribut->data;
-					}
-				}
-				//print '<img src="data:image/JPEG;base64,' . $pic . '">';
-				$awardArray[$awardID]['pic'] = 'data:image/JPEG;base64,' . $pic;
-			}
-
 		}
 
 		if (!isset($awardArray) || !is_array($awardArray)) return;
@@ -285,19 +261,41 @@ class Auszeichnungen {
 	 * Ausgabe der Awards
 	 */
 
-	private function make_list($awards, $name=1, $year=1) {
+	private function make_list($awards, $name=1, $year=1, $awardname=1) {
 		$awardlist = "<ul class=\"cris-awards\">";
 
 		foreach ($awards as $award) {
+
+			$award_preistraeger = $award['award_preistraeger'];
+			if(!empty($award['award_name'])) {
+				$award_name = $award['award_name'];
+			} elseif (!empty($award['award_name_manual'])) {
+				$award_name = $award['award_name_manual'];
+			}
+			if(!empty($award['award_organisation'])) {
+				$organisation = $award['award_organisation'];
+			} elseif (!empty($award['award_organisation_manual'])) {
+				$organisation = $award['award_organisation_manual'];
+			}
+			$award_year = $award['Year award'];
+
 			$awardlist .= "<li>";
 			if ($year == 1 && $name == 1) {
-				$awardlist .= $award['award_preistraeger'] . ": <strong>" . $award['award_name'] . "</strong> (". $award['award_organisation'] . ") &ndash; " . $award['Year award'];
+				$awardlist .= (!empty($award_preistraeger) ? $award_preistraeger : "")
+					. ($awardname == 1 ? ": <strong>" . $award_name . "</strong> "
+						. ((isset($organisation) && $award['Type of award'] != 'Akademie-Mitgliedschaft') ? " (". $organisation . ")" : "")  : "" )
+					. (!empty($award_year) ? " &ndash; " . $award_year : "");
 			} elseif ($year == 1 && $name == 0) {
-				$awardlist .= $award['Year award'] . ": <strong>" . $award['award_name'] . "</strong> (". $award['award_organisation'] . ")";
+				$awardlist .= (!empty($award_year) ? $award_year . ": " : "")
+					. "<strong>" . $award_name . "</strong>"
+					. ((isset($organisation) && $award['Type of award'] != 'Akademie-Mitgliedschaft') ? " (". $organisation . ")" : "");
 			} elseif ($year == 0 && $name == 1) {
-				$awardlist .= $award['award_preistraeger'] . ": <strong>" . $award['award_name'] . "</strong> (". $award['award_organisation'] . ")";
+				$awardlist .= (!empty($award_preistraeger) ? $award_preistraeger . ": " : "")
+					. "<strong>" . $award_name . "</strong>"
+					. ((isset($organisation) && $award['Type of award'] != 'Akademie-Mitgliedschaft') ? " (". $organisation . ")" : "");
 			} else {
-				$awardlist .= "<strong>" . $award['award_name'] . "</strong>";
+				$awardlist .= "<strong>" . $award_name . "</strong>"
+					. ((isset($organisation) && $award['Type of award'] != 'Akademie-Mitgliedschaft') ? " (". $organisation . ")" : "");
 			}
 			$awardlist .= "</li>";
 		}
@@ -307,21 +305,55 @@ class Auszeichnungen {
 	}
 
 	private function make_gallery($awards, $name=1, $year=1, $awardname=1) {
-		$awardlist = "<ul class=\"cris-awards cris-gallery clearfix\">";
+		$awardlist = "<ul class=\"cris-awards cris-gallery clear clearfix\">";
 
 		foreach ($awards as $award) {
+			//var_dump($award);
+			$award_preistraeger = $award['award_preistraeger'];
+			if(!empty($award['award_name'])) {
+				$award_name = $award['award_name'];
+			} elseif (!empty($award['award_name_manual'])) {
+				$award_name = $award['award_name_manual'];
+			}
+			if(!empty($award['award_organisation'])) {
+				$organisation = $award['award_organisation'];
+			} elseif (!empty($award['award_organisation_manual'])) {
+				$organisation = $award['award_organisation_manual'];
+			}
+			$award_year = $award['Year award'];
+			$award_pic = self::get_pic($award['ID_AWAR']);
+
 			$awardlist .= "<li>";
-			$awardlist .= $award['pic'] != '' ? "<img src=\"" . $award['pic'] . "\" alt=\"Portrait " . $award['award_preistraeger'] . "\" />" : "<div class=\"noimage\">&nbsp</div>";
-			$awardlist .= $name == 1 ? $award['award_preistraeger'] . "<br />" : '';
-			$awardlist .= $awardname == 1 ? "<strong>" . $award['award_name'] . "</strong><br />"
-				. $award['award_organisation'] . "<br />" :'';
-			$awardlist .= $year == 1 ? $award['Year award'] : '';
+			$awardlist .= strlen($award_pic) > 50 ? "<img src=\"" . $award_pic . "\" alt=\"Portrait " . $award_preistraeger . "\" />" : "<div class=\"noimage\">&nbsp</div>";
+			$awardlist .= $name == 1 ? $award_preistraeger . "<br />" : '';
+			$awardlist .= $awardname == 1 ? "<strong>" . $award_name . "</strong> "
+				. ((isset($organisation) && $award['Type of award'] != 'Akademie-Mitgliedschaft') ? " (". $organisation . ")" : "") . "<br />" :'';
+			$awardlist .= ($year == 1 && !empty($award_year)) ? $award_year : '';
 
 			$awardlist .= "</li>";
 		}
 
 		$awardlist .= "</ul>";
 		return $awardlist;
+	}
+
+	private function get_pic($award) {
+		$picString = "https://cris.fau.de/ws-cached/1.0/public/infoobject/getrelated/Award/" . $award . "/awar_has_pict";
+		$picXml = Tools::XML2obj($picString);
+
+		if ($picXml['size'] == 0) {
+			$award['pic'] = '';
+		} else {
+			foreach ($picXml->infoObject->attribute as $picAttribut) {
+				$pic = '';
+				if ($picAttribut['name'] == 'png180') {
+					$pic = $picAttribut->data;
+				}
+			}
+			//print '<img src="data:image/JPEG;base64,' . $pic . '">';
+			$pic = 'data:image/PNG;base64,' . $pic;
+		}
+		return $pic;
 	}
 
 }

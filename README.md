@@ -1,7 +1,7 @@
 CRIS-Plugin_Webbaukasten
 ========================
 
-Version 1.71 (Stand 02.02.2016)
+Version 1.72 (Stand 21.03.2016)
 
 Einbinden von Daten aus dem FAU-Forschungsinformationssystem <b>CRIS</b> in Webseiten
 
@@ -11,6 +11,8 @@ Aktuell werden folgende in CRIS erfasste Forschungsleistungen unterstützt:
 
 ## Installation
 - Installation analog zu den übrigen Webbaukasten-Plugins in /vkdaten/tools/cris/
+- Fügen Sie außerdem in die Datei ssi/head.shtm folgende Zeile ein:<br />
+  <code><link href="/vkdaten/tools/cris/cris.css" type="text/css" rel="stylesheet"></code>
 
 ## Include
 - Publikationsliste (automatisch nach Jahren gegliedert):<br />
@@ -44,7 +46,9 @@ Die verschiedenen Zusatzoptionen können miteinander kombiniert werden. Die Para
 		- mitgliedschaften
 		- andere
 - <b>publication=12345678</b>: Nur eine einzelne Publikation (hier die CRIS-ID der Publikation angeben)
-- <b>award=12345678</b>: Nur eine einzelne Auszeichnung (hier die CRIS-ID der Auszeichnung angeben)
+- <b>awardnameid=158</b>: Nur eine einzelne Auszeichnung (hier die CRIS-ID der Auszeichnung angeben)
+- <b>award=12345678</b>: Nur eine einzelne Preisverleihung (hier die CRIS-ID der Verleihung angeben)<br>
+  Hinweis zum Unterschied zwischen awardnameid und award: <b>awardnameid</b> bedeutet die ID eines Preises, der normalerweise mehrfach vergeben wird, z.B. der "Gottfried-Wilhelm-Leibniz-Preis". <b>award</b> (bzw. dessen ID) bedeutet die konkrete, einmalige Verleihung dieses Preises an eine bestimmte Person.
 - Filter lassen sich auch kombinieren: z.B. year=2014&type=buecher (= alle Bücher aus dem Jahr 2014)
 
 ### Darstellung
