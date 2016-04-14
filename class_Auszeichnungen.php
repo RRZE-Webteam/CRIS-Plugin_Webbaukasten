@@ -68,7 +68,6 @@ class Auszeichnungen {
 		}
 	}
 
-
 	public function awardsListe($year = '', $start = '', $type = '', $showname = 1, $showyear = 1, $display = 'list', $awardnameid='') {
 		if (!isset($this->awardArray) || !is_array($this->awardArray)) return;
 
@@ -171,7 +170,6 @@ class Auszeichnungen {
 			if ($type != '') {
 				$type = CRIS_Dicts::$awardNames[$type]['de'];
 			}
-
 			$awards = Tools::filter_awards($this->awardArray, $year, $start, $type);
 		} else {
 			$awards = $this->awardArray;
@@ -308,7 +306,6 @@ class Auszeichnungen {
 		$awardlist = "<ul class=\"cris-awards cris-gallery clear clearfix\">";
 
 		foreach ($awards as $award) {
-			//var_dump($award);
 			$award_preistraeger = $award['award_preistraeger'];
 			if(!empty($award['award_name'])) {
 				$award_name = $award['award_name'];
