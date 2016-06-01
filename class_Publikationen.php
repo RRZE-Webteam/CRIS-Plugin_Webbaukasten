@@ -171,8 +171,8 @@ class Publikationen {
 			$pubByType = Tools::sort_key($pubByType, CRIS_Dicts::$pubOrder);
 		}
 		foreach ($pubByType as $array_type => $publications) {
-			$title = Tools::getPubTranslation($array_type);
 
+			$title = Tools::getpubTitle($array_type, $this->locale);
 			// Zwischenüberschrift (= Publikationstyp), außer wenn nur ein Typ gefiltert wurde
 			if (empty($type)) {
 				$output .= "<h3>";
