@@ -68,7 +68,6 @@ class Publikationen_neu {
         foreach ($xmlOrga as $card) {
             $this->inOrga[] = (string) $card['id'];
         }
-        var_dump($this->inOrga);
     }
 
     /*
