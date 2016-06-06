@@ -30,7 +30,7 @@ class Publikationen {
 			$this->suchstring = $this->crisURL .'getautorelated/Person/' . $id . '/PERS_2_PUBL_1';
 		} elseif ($einheit == "orga") {
 			// Publikationsliste für Organisationseinheit (überschreibt Orgeinheit aus Einstellungen!!!)
-			$this->suchstring = $this->crisURL . 'getautorelated/Organisation/' . $id . '/ORGA_2_PUBL_1'; //142408
+			$this->suchstring = $this->crisURL ."getautorelated/Organisation/" . $id . "/ORGA_2_PUBL_1"; //142408
 		} elseif ($einheit == "publication") {
 			$this->suchstring = $this->crisURL . 'get/Publication/' . $id;
  		} else {
@@ -44,27 +44,27 @@ class Publikationen {
 			return;
 		}
 
-		$publications = $xml->infoObject;
+		$this->publications = $xml->infoObject;
 
 		// XML -> Array
 
 		$this->pubArray = array();
 
-		foreach ($publications as $publication) {
-			$pubID = (string)$publication['id'];
+		foreach ($this->publications as $publication) {
+			$this->pubID = (string) $publication['id'];
 
-			foreach ($publication as $attribut){
+			foreach ($publication as $attribut) {
 				if ($attribut['language'] == 1) {
-					$pubAttribut = (string)$attribut['name'] . "_en";
+					$pubAttribut = (string) $attribut['name'] . "_en";
 				} else {
-					$pubAttribut = (string)$attribut['name'];
+					$pubAttribut = (string) $attribut['name'];
 				}
-				if ((string)$attribut['disposition'] == 'choicegroup' ) {
-					$pubDetail = (string)$attribut->additionalInfo;
+				if ((string) $attribut['disposition'] == 'choicegroup') {
+					$pubDetail = (string) $attribut->additionalInfo;
 				} else {
-					$pubDetail = (string)$attribut->data;
+					$pubDetail = (string) $attribut->data;
 				}
-				$this->pubArray[$pubID][$pubAttribut] = $pubDetail;
+				$this->pubArray[$this->pubID][$pubAttribut] = $pubDetail;
 			}
 		}
 		//$this->pubArray = Tools::record_sortByYear($this->pubArray);
@@ -77,12 +77,11 @@ class Publikationen {
 		}
 	}
 
-
 	/*
 	 * Ausgabe aller Publikationen nach Jahren gegliedert
 	 */
 
-	public function pubNachJahr($year = '', $start = '', $type = '', $quotation = '') {
+	public function pubNachJahr($year = '', $start = '', $type = '', $quotation = '', $items = '') {
 		if (!isset($this->pubArray) || !is_array($this->pubArray)) return;
 
 		$pubByYear = array();
@@ -93,6 +92,15 @@ class Publikationen {
 			$publications = Tools::filter_publications($this->pubArray, $year, $start, $type);
 		} else {
 			$publications = $this->pubArray;
+		}
+
+		if ($items != '') {
+			//print $items;
+			$first = (integer) explode('-', $items)[0];	// 1
+			$last = (integer) explode('-', $items)[1];	// 10
+			$offset = $first - 1;	// 0
+			$length = $last - $offset;	//10
+			$publications = array_slice($publications, $offset, $length, true);
 		}
 
 		if (empty($publications)) {
@@ -119,7 +127,9 @@ class Publikationen {
 				$output .= '<h3>' . $array_year . '</h3>';
 			}
 			// innerhalb des Publikationstyps alphabetisch nach Erstautor sortieren
-			$publications = Tools::array_msort($publications, array('relAuthors' => SORT_ASC));
+			//$publications = Tools::record_sortByVirtualdate($publications);
+			$publications = Tools::array_msort($publications, array('virtualdate' => SORT_DESC));
+			//$publications = Tools::array_msort($publications, array('relAuthors' => SORT_ASC));
 			if ($quotation == 'apa' || $quotation == 'mla') {
 				$output .= $this->make_quotation_list($publications, $quotation);
 			} else {
@@ -172,7 +182,8 @@ class Publikationen {
 		}
 		foreach ($pubByType as $array_type => $publications) {
 
-			$title = Tools::getpubTitle($array_type, $this->locale);
+			$title = Tools::getpubTitle($array_type, get_locale());
+
 			// Zwischenüberschrift (= Publikationstyp), außer wenn nur ein Typ gefiltert wurde
 			if (empty($type)) {
 				$output .= "<h3>";
@@ -192,9 +203,7 @@ class Publikationen {
 		return $output;
 	} // Ende pubNachTyp()
 
-
 	public function singlePub($quotation = '') {
-		//print $id;
 		$pubObject = Tools::XML2obj($this->suchstring);
 		$this->publications = $pubObject->attribute;
 		foreach ($this->publications as $attribut) {
@@ -219,8 +228,10 @@ class Publikationen {
 		} else {
 			$output = $this->make_list($this->pubArray);
 		}
+
 		return $output;
 	}
+
 
 	/* =========================================================================
 	 * Private Functions
@@ -271,6 +282,7 @@ class Publikationen {
 				'city' => (array_key_exists('cfCityTown', $publication) ? strip_tags($publication['cfCityTown']) : 'O.O.'),
 				'publisher' => (array_key_exists('publisher', $publication) ? strip_tags($publication['publisher']) : 'O.A.'),
 				'year' => (array_key_exists('publYear', $publication) ? strip_tags($publication['publYear']) : 'O.J.'),
+				'virtualdate' => (array_key_exists('virtualdate', $publication) ? strip_tags($publication['virtualdate']) : 'X'),
 				'pubType' => (array_key_exists('Publication type', $publication) ? strip_tags($publication['Publication type']) : 'O.A.'),
 				'pagesTotal' => (array_key_exists('cfTotalPages', $publication) ? strip_tags($publication['cfTotalPages']) : ''),
 				'pagesRange' => (array_key_exists('pagesRange', $publication) ? strip_tags($publication['pagesRange']) : ''),
@@ -311,6 +323,7 @@ class Publikationen {
 				}
 				$authorList[] = $authordata;
 			}
+			//$publist .= $pubDetails['virtualdate'] . "<br />";
 			$publist .= implode(", ", $authorList);
 			$publist .= ($pubDetails['pubType'] == 'Editorial' ? ' (Hrsg.):' : ':');
 

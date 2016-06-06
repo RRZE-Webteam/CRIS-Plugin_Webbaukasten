@@ -20,19 +20,18 @@ class Publikationen_neu {
         $this->suchstring = '';
         switch (substr($this->options['Sprache'], 0, 2)) {
             case 'de':
-                $this->locale = 'de_DE';
+                $locale = 'de_DE';
                 break;
             case 'en':
-                $this->locale = 'en_US';
+                $locale = 'en_US';
                 break;
             default:
-                $this->locale = $this->options['Sprache'];
+                $locale = $this->options['Sprache'];
         }
-        $locale = $this->locale;
 
         // Sprache einstellen
-        putenv('LC_ALL=' . $this->locale);
-        setlocale(LC_ALL, $this->locale);
+        putenv('LC_ALL=' . $locale);
+        setlocale(LC_ALL, $locale);
         // Pfads der Übersetzungstabellen
         bindtextdomain("fau-cris", "./languages");
         // Domain auswählen
@@ -69,6 +68,7 @@ class Publikationen_neu {
         foreach ($xmlOrga as $card) {
             $this->inOrga[] = (string) $card['id'];
         }
+        var_dump($this->inOrga);
     }
 
     /*
@@ -303,8 +303,12 @@ class Publikationen_neu {
                 $authordata = $span_pre . $author['name'] . $span_post;
                 $author_firstname = explode(" ", $author['name'])[1];
                 $author_lastname = explode(" ", $author['name'])[0];
-                if ($author['id'] && !in_array($author['id'], array('invisible', 'external')) && isset($this->options['cris_univis']) && $this->options['cris_univis'] == 1 && Tools::person_slug($author_firstname, $author_lastname) != "") {
-                    $link_pre = "<a href=\"/person/" . Tools::person_slug($author_firstname, $author_lastname) . "\">";
+                if ($author['id']
+                        && !in_array($author['id'], array('invisible', 'external'))
+                        && isset($this->options['Personeninfo_Univis'])
+                        && $this->options['Personeninfo_Univis'] == 1
+                        && in_array($author['id'],$this->inOrga)) {
+                    $link_pre = "<a href=\"/person/" . $this->pathPersonenseiteUnivis . "/" . $author_firstname . "-" .  $author_lastname . "\">";
                     $link_post = "</a>";
                     $authordata = $link_pre . $authordata . $link_post;
                 }
