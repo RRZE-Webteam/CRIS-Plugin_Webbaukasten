@@ -1,7 +1,6 @@
 <?php
 
 require_once("class_Tools.php");
-require_once("class_Publications.php");
 
 include('cache-top.php');
 
@@ -63,8 +62,8 @@ if (isset($publication) && $publication != '') {
 // Ausgabe
 if (isset($show) && $show == 'awards') {
     // Awards
-    require_once('class_Auszeichnungen_neu.php');
-    $liste = new Auszeichnungen_neu($param1, $param2, $display);
+    require_once('class_Auszeichnungen.php');
+    $liste = new Auszeichnungen($param1, $param2, $display);
 
     if ($award != '') {
         echo $liste->singleAward($showname, $showyear, $display);
@@ -78,8 +77,8 @@ if (isset($show) && $show == 'awards') {
 
 } else {
     // Publications
-    require_once('class_Publikationen_neu.php');
-    $liste = new Publikationen_neu($param1, $param2);
+    require_once('class_Publikationen.php');
+    $liste = new Publikationen($param1, $param2);
 
     if ($publication != '') {
         echo $liste->singlePub($quotation);

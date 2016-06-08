@@ -3,10 +3,50 @@
 class CRIS {
 
     public function __construct() {
-        $this->ladeConf();
+        $options = self::ladeConf();
+        $locale = $options['Sprache'];
+
+        switch (substr($options['Sprache'], 0, 2)) {
+            case 'de':
+                $locale = 'de_DE';
+                break;
+            case 'en':
+                $locale = 'en_US';
+                break;
+            default:
+                $locale = $options['Sprache'];
+        }
+        // Sprache einstellen
+        putenv('LC_ALL=' . $locale);
+        setlocale(LC_ALL, $locale);
+        // Pfads der Übersetzungstabellen
+        bindtextdomain("fau-cris", "./languages");
+        // Domain auswählen
+        textdomain("fau-cris");
+
+        // WP-Funktionen ersetzen
+        if (!function_exists("__")) {
+            function __($text, $x=null) {
+                return _($text);
+            }
+        }
+        if (!function_exists("get_locale")) {
+            function get_locale() {
+                new CRIS();
+                $locale = CRIS::getLocale();
+                return $locale;
+            }
+        }
+
     }
 
-    private function ladeConf($args = NULL) {
+    public static function getLocale() {
+        $options = self::ladeConf();
+        $locale = $options['Sprache'];
+        return $locale;
+    }
+
+    public static function ladeConf($args = NULL) {
         $options = array();
 
         // defaults
@@ -29,7 +69,8 @@ class CRIS {
 //			'Zeige_Auszeichnungen'	=>	'0',
             'cris_cache' => '18000',
             'cris_ignore' => array('FoDa-Administrator/in', 'Andere'),
-            'Sprache' => 'de_DE'
+            'Sprache' => 'de_DE',
+            'BibTex' => '1'
         );
 
         // load options
@@ -74,10 +115,12 @@ class CRIS {
         fclose($fh_web);
 
         // merge defaults with options
-        $this->options = array_merge($defaults, $options);
+        $options = array_merge($defaults, $options);
         if ($args) {
-            $this->options = array_merge($this->options, $args);
+            $options = array_merge($options, $args);
         }
+
+        return $options;
     }
 
 }

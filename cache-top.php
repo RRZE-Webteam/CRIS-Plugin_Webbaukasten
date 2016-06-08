@@ -6,8 +6,8 @@ $url = $_SERVER["REQUEST_URI"];
 $break = Explode('/', $url);
 $file = $break[count($break) - 2] . "-" . $break[count($break) - 1];
 $cachefile = 'cache/cached-'. $file;
-$getoptions = new CRIS();
-$options = $getoptions->options;
+new CRIS();
+$options = CRIS::ladeConf();
 if (array_key_exists('Cache_Zeit', $options)) {
     $cachetime = $options['Cache_Zeit'];
 } else {

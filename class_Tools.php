@@ -64,13 +64,18 @@ class Tools {
             $xmlTree = new SimpleXMLElement($xml);
         } catch (Exception $e) {
             // Something went wrong.
-            print '<p>';
-            $error_message = 'Fehler beim Einlesen der Daten: Bitte überprüfen Sie die CRIS-ID.';
-            foreach (libxml_get_errors() as $error_line) {
-                $error_message .= "<br>" . $error_line->message;
+
+            $error_message = '<strong>' . __('Fehler beim Einlesen der Daten: Bitte überprüfen Sie die CRIS-ID.', self::textdomain) . '</strong>';
+            if (defined('WP_DEBUG') && true === WP_DEBUG) {
+                print '<p>';
+                foreach (libxml_get_errors() as $error_line) {
+                    $error_message .= "<br>" . $error_line->message;
+                }
+                trigger_error($error_message);
+                print '</p>';
+            } else {
+                //print $error_message;
             }
-            trigger_error($error_message);
-            print '</p>';
             return false;
         }
         return $xmlTree;
@@ -197,15 +202,14 @@ class Tools {
 
     public static function publication_filter($year = '', $start = '', $type = '') {
         $filter = array();
-        if ($year !== ''&& $year !== NULL)
+        if ($year !== '' && $year !== NULL)
             $filter['publyear__eq'] = $year;
-        if ($start !== ''&& $start !== NULL)
+        if ($start !== '' && $start !== NULL)
             $filter['publyear__ge'] = $start;
         if ($type !== '' && $type !== NULL) {
             $pubTyp = Tools::getPubName($type, "en");
             if (empty($pubTyp)) {
-                // XXX: hier fehlt eine Übersetzung
-                $output .= '<p>Falscher Parameter für Publikationstyp</p>';
+                $output .= '<p>' . __('Falscher Parameter für Publikationstyp', '') . '</p>';
                 return $output;
             }
             $filter['publication type__eq'] = $pubTyp;
@@ -256,26 +260,32 @@ class Tools {
      * WP: Anbindung FAU-Person-Plugin
      */
 
-    public static function person_exists($firstname, $lastname) {
-        global $wpdb;
-
-        $person = $wpdb->esc_like($firstname) . '%' . $wpdb->esc_like($lastname);
-        $sql = "SELECT COUNT(*) FROM $wpdb->posts WHERE post_title LIKE %s AND post_type = 'person'";
-        $sql = $wpdb->prepare($sql, $person);
-        $person_count = $wpdb->get_var($sql);
-
-        return $person_count;
+    public static function person_exists($cms = '', $firstname = '', $lastname = '', $id = '', $orgNr = '') {
+        if ($cms == 'wp') {
+        // WordPress
+            return self::person_slug($cms, $firstname, $lastname);
+        } else {
+        // Webbaukasten
+        $suchstringOrga = 'https://cris.fau.de/ws-cached/1.0/public/infoobject/getrelated/Organisation/' . $orgNr . '/CARD_has_ORGA';
+        $xmlOrga = Tools::XML2obj($suchstringOrga);
+        foreach ($xmlOrga as $card) {
+                $inOrga[] = (string) $card['id'];
+        }
+            return in_array($id,$inOrga);
+        }
     }
 
-    public static function person_slug($firstname, $lastname) {
-        global $wpdb;
-
-        $person = $wpdb->esc_like($firstname) . '%' . $wpdb->esc_like($lastname);
-        $sql = "SELECT post_name FROM $wpdb->posts WHERE post_title LIKE %s AND post_type = 'person'";
-        $sql = $wpdb->prepare($sql, $person);
-        $person_slug = $wpdb->get_var($sql);
-
+    public static function person_slug($cms = '', $firstname = '', $lastname = '') {
+        if ($cms == 'wp') {
+            global $wpdb;
+            $person = $wpdb->esc_like($firstname) . '%' . $wpdb->esc_like($lastname);
+            $sql = "SELECT post_name FROM $wpdb->posts WHERE post_title LIKE %s AND post_type = 'person'";
+            $sql = $wpdb->prepare($sql, $person);
+            $person_slug = $wpdb->get_var($sql);
+        } else {
+            //Webbauksten
+            $person_slug = $firstname . "-" .  $lastname;
+        }
         return $person_slug;
     }
-
 }
