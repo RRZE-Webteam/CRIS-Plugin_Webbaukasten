@@ -16,7 +16,8 @@ class CRIS_Dicts {
         'showname' => 1,
         'showyear' => 1,
         'display' => 'list',
-        'quotation' => ''
+        'quotation' => '',
+        'items' => ''
     );
     public static $pubTitles = array(
         'Journal article' => array(
@@ -104,6 +105,12 @@ class CRIS_Dicts {
         "abschlussarbeiten",
         "andere"
     );
+    public static $awardOrder = array(
+        "Preis / Ehrung",
+        "Stipendium / Grant",
+        "Akademie-Mitgliedschaft",
+        "Weitere Preise"
+    );
     public static $awardTitles = array(
         'Akademie-Mitgliedschaft' => array(
             'de_DE' => 'Akademie-Mitgliedschaften',
@@ -147,12 +154,6 @@ class CRIS_Dicts {
             'de' => 'Weiterer Preis / Auszeichnung',
             'en' => 'Other Award',
         )
-    );
-    public static $awardOrder = array(
-        "Preis / Ehrung",
-        "Stipendium / Grant",
-        "Akademie-Mitgliedschaft",
-        "Weitere Preise"
     );
 
 }

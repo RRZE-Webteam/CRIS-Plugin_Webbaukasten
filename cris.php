@@ -21,7 +21,8 @@ if (isset($_GET['orga'])) {
 } elseif (isset($_GET['orgid'])) {
     $orgid = $_GET['orgid'];
 } else {
-    $orgid = CRIS_Dicts::$defaults['orgid'];
+    $options = CRIS::ladeConf();
+    $orgid = $options['CRISOrgNr'];
 }
 if (isset($_GET['person'])) {
     $persid = $_GET['person'];
@@ -37,6 +38,7 @@ $awardnameid = isset($_GET['awardnameid']) ? $_GET['awardnameid'] : '';
 $showname = isset($_GET['showname']) ? $_GET['showname'] : CRIS_Dicts::$defaults['showname'];
 $showyear = isset($_GET['showyear']) ? $_GET['showyear'] : CRIS_Dicts::$defaults['showyear'];
 $display = isset($_GET['display']) ? $_GET['display'] : CRIS_Dicts::$defaults['display'];
+$items = isset($_GET['items']) ? $_GET['items'] : CRIS_Dicts::$defaults['items'];
 
 // Filterkriterien
 if (isset($publication) && $publication != '') {
@@ -53,6 +55,10 @@ if (isset($publication) && $publication != '') {
     $param2 = $persid;
 } elseif (isset($orgid) && $orgid != '') {
     $param1 = 'orga';
+    if (strpos($orgid, ',')) {
+        $orgid = str_replace(' ', '', $orgid);
+        $orgid = explode(',', $orgid);
+    }
     $param2 = $orgid;
 } else {
     $param1 = '';
@@ -74,7 +80,6 @@ if (isset($show) && $show == 'awards') {
     } else {
         echo $liste->awardsListe($year, $start, $type, $awardnameid, $showname, $showyear, $display);
     }
-
 } else {
     // Publications
     require_once('class_Publikationen.php');
