@@ -1,7 +1,7 @@
 CRIS-Plugin_Webbaukasten
 ========================
 
-Version 1.72 (Stand 21.03.2016)
+Version 1.8 (Stand 15.06.2016)
 
 Einbinden von Daten aus dem FAU-Forschungsinformationssystem <b>CRIS</b> in Webseiten
 
@@ -49,6 +49,7 @@ Die verschiedenen Zusatzoptionen können miteinander kombiniert werden. Die Para
 - <b>awardnameid=158</b>: Nur eine einzelne Auszeichnung (hier die CRIS-ID der Auszeichnung angeben)
 - <b>award=12345678</b>: Nur eine einzelne Preisverleihung (hier die CRIS-ID der Verleihung angeben)<br>
   Hinweis zum Unterschied zwischen awardnameid und award: <b>awardnameid</b> bedeutet die ID eines Preises, der normalerweise mehrfach vergeben wird, z.B. der "Gottfried-Wilhelm-Leibniz-Preis". <b>award</b> (bzw. dessen ID) bedeutet die konkrete, einmalige Verleihung dieses Preises an eine bestimmte Person.
+- <b>items=5</b>: Nur die ersten 5 Publikationen anzeigen. In dem Fall werden "orderby"-Parameter ignoriert – es wird eine nicht gegliederte Liste ausgegeben.
 - Filter lassen sich auch kombinieren: z.B. year=2014&type=buecher (= alle Bücher aus dem Jahr 2014)
 
 ### Darstellung
@@ -62,7 +63,7 @@ Die verschiedenen Zusatzoptionen können miteinander kombiniert werden. Die Para
 
 ### ID überschreiben
 Die in den Einstellungen festgelegte CRIS-ID kann überschrieben werden, entweder durch die ID einer anderen Organisationseinheit, oder durch die ID einer einzelnen Person:
-- <b>orga=123456</b> für eine von den Einstellungen abweichende Organisations-ID
+- <b>orga=123456</b> für eine von den Einstellungen abweichende Organisations-ID. Sie können auch mehrere Organisations-IDs angeben, durch Komma getrennt: orga=123456,987654.
 - <b>person=123456</b> für die Publikationen bzw. Auszeichnungen einer konkreten Person
 
 ## Beispiele
@@ -82,9 +83,12 @@ Konfiguration über /vkdaten/cris.conf (über NavEditor > Erweitert > Konfigurat
 
 Eintrag | Beispiel | Erklärung |
 | ------------- | ------------- | ------------- |
-CRISOrgNr | 1234567 | CRIS-Organisationsnummer |
+CRISOrgNr | 1234567 <em>oder</em>123456, 987654 | CRIS-Organisationsnummer. Sie können auch mehrere Organisations-IDs angeben, durch Komma getrennt. |
 Reihenfolge_Publikationen | konferenzbeitraege&#124;zeitschriftenartikel&#124;buecher&#124;sammelbandbeitraege&#124;uebersetzungen&#124;herausgeberschaften&#124;abschlussarbeiten&#124;andere | Reihenfolge, wenn die Publikationsliste nach Publikationstypen gegliedert werden soll|
 Pfad_Personenseite | /cris/person.shtml | für Links von Publikations- und Mitarbeiterlisten auf Personen-Detailseite |
 Personeninfo_Univis | 1 | In Publikationslisten Autoren mit ihrer UnivIS-Personenseite verlinken?; 1=ja, 0=nein; UnivIS-Plugin muss installiert und eingerichtet sein |
 Pfad_Personenseite_Univis | /wir-ueber-uns/mitarbeiter/mitarbeiter.shtml | Pfad zur UnivIS-Personenseite |
 Reihenfolge_Auszeichnungen | preise&#124;stipendien&#124;mitgliedschaften&#124;andere | Reihenfolge, wenn die Auszeichnungen nach Typen gegliedert werden sollen|
+BibTex | 1 | Soll unter den einzelnen Publikationen ein Link zum BibTex-Export der Publikationsdaten angezeigt werden? 1=ja, 0=nein.|
+Sprache | de | Sprache z.B. der Publikationstypen. Bislang verfügbar: de und en.|
+Cache_Zeit | 43200 | Wie lange sollen die Seiten im Cache zwischengespeichert werden? Angabe in Sekunden: 43200 Sek. = 12 Std.|
