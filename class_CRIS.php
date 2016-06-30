@@ -70,7 +70,8 @@ class CRIS {
             'cris_cache' => '18000',
             'cris_ignore' => array('FoDa-Administrator/in', 'Andere'),
             'Sprache' => 'de_DE',
-            'BibTex' => '1'
+            'BibTex' => '1',
+            'Personeninfo_Univis_Auszeichnungen' => '1'
         );
 
         // load options

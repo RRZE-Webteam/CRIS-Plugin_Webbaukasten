@@ -170,33 +170,6 @@ class Tools {
     }
 
     /*
-     * Publikationen-Array filtern
-     */
-
-    public static function filter_publications($publications, $year = '', $start = '', $type = '') {
-
-        $publications_filtered = array();
-        if (!empty($type)) {
-            $pubTyp = Tools::getPubName($type, "en");
-            $pubTyp_de = Tools::getPubName($type, "de");
-        }
-        if (!empty($type) && !isset($pubTyp_de)) {
-            return "<p>Falscher Parameter</p>";
-        }
-
-        foreach ($publications as $id => $book) {
-            if (
-                    (empty($year) || $book['publYear'] == $year) &&
-                    (empty($start) || $book['publYear'] >= $start) &&
-                    (empty($type) || $book['Publication type'] == $pubTyp)
-            ) {
-                $publications_filtered[$id] = $book;
-            }
-        }
-        return $publications_filtered;
-    }
-
-    /*
      * Array zur Definition des Filters für Publikationen
      */
 
@@ -220,35 +193,17 @@ class Tools {
     }
 
     /*
-     * Awards-Array filtern
-     */
-
-    public static function filter_awards($awards, $year = '', $start = '', $type = '') {
-
-        $awards_filtered = array();
-        foreach ($awards as $id => $award) {
-            if (
-                    (empty($year) || $award['Year award'] == $year) &&
-                    (empty($start) || $award['Year award'] >= $start) &&
-                    (empty($type) || $award['Type of award'] == $type)
-            ) {
-                $awards_filtered[$id] = $award;
-            }
-        }
-        return $awards_filtered;
-    }
-
-    /*
      * Array zur Definition des Filters für Awards
      */
 
     public static function award_filter($year = '', $start = '', $type = '') {
         $filter = array();
-        if ($year !== '')
+        if ($year !== '' && $year !== NULL)
             $filter['year award__eq'] = $year;
-        if ($start !== '')
+        if ($start !== '' && $start !== NULL)
             $filter['year award__ge'] = $start;
-        if ($type !== '') {
+        if ($type !== '' && $type !== NULL) {
+            $type = Tools::getAwardName($type, "de");
             $filter['type of award__eq'] = $type;
         }
         if (count($filter))
@@ -260,24 +215,18 @@ class Tools {
      * Anbindung an UnivIS-/FAU-Person-Plugin
      */
 
-    public static function person_exists($cms = '', $firstname = '', $lastname = '', $id = '', $orgNr = '') {
+    public static function person_exists($cms = '', $firstname = '', $lastname = '', $univis = array()) {
         if ($cms == 'wp') {
             // WordPress
             return self::person_slug($cms, $firstname, $lastname);
         } else {
             // Webbaukasten
-            if (strpos($orgNr, ',')) {
-                $orgNr = str_replace(' ', '', $orgNr);
-                $orgNrArray = explode(',', $orgNr);
-            }
-            foreach ($orgNrArray as $nr) {
-                $suchstringOrga = 'https://cris.fau.de/ws-cached/1.0/public/infoobject/getrelated/Organisation/' . $nr . '/CARD_has_ORGA';
-                $xmlOrga = Tools::XML2obj($suchstringOrga);
-                foreach ($xmlOrga as $card) {
-                    $inOrga[] = (string) $card['id'];
+            foreach ($univis as $_p) {
+                if (strpos($_p['firstname'], $firstname) !== false
+                 && strpos($_p['lastname'], $lastname) !== false) {
+                    return true;
                 }
-            }
-            return in_array($id, $inOrga);
+           }
         }
     }
 
@@ -291,9 +240,25 @@ class Tools {
             $person_slug = $wpdb->get_var($sql);
         } else {
             //Webbauksten
-            $person_slug = $firstname . "-" . $lastname;
+            $person_slug = strtolower($firstname) . "-" . strtolower($lastname).".shtml";
         }
         return $person_slug;
     }
 
+    public static function get_univis_id() {
+        $fpath = $_SERVER["DOCUMENT_ROOT"] . '/vkdaten/tools/univis/univis.conf';
+        $fpath_alternative = $_SERVER["DOCUMENT_ROOT"] . '/vkdaten/univis.conf';
+        if(file_exists($fpath_alternative)){ $fpath = $fpath_alternative; }
+        $fh = fopen($fpath, 'r') or die('Cannot open file!');
+	while(!feof($fh)) {
+            $line = fgets($fh);
+            $line = trim($line);
+            if ((substr($line, 0, 11) == 'UnivISOrgNr')) {
+                $arr_opts = preg_split('/\t/', $line);
+                $univisID = $arr_opts[1];
+            }
+        }
+	fclose($fh);
+        return $univisID;
+    }
 }

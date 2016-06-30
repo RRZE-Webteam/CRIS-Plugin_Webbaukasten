@@ -37,6 +37,7 @@ $award = isset($_GET['award']) ? $_GET['award'] : CRIS_Dicts::$defaults['award']
 $awardnameid = isset($_GET['awardnameid']) ? $_GET['awardnameid'] : '';
 $showname = isset($_GET['showname']) ? $_GET['showname'] : CRIS_Dicts::$defaults['showname'];
 $showyear = isset($_GET['showyear']) ? $_GET['showyear'] : CRIS_Dicts::$defaults['showyear'];
+$showawardname = isset($_GET['showawardname']) ? $_GET['showawardname'] : CRIS_Dicts::$defaults['showawardname'];
 $display = isset($_GET['display']) ? $_GET['display'] : CRIS_Dicts::$defaults['display'];
 $items = isset($_GET['items']) ? $_GET['items'] : CRIS_Dicts::$defaults['items'];
 
@@ -72,13 +73,13 @@ if (isset($show) && $show == 'awards') {
     $liste = new Auszeichnungen($param1, $param2, $display);
 
     if ($award != '') {
-        echo $liste->singleAward($showname, $showyear, $display);
+        echo $liste->singleAward($showname, $showyear, $showawardname, $display);
     } elseif ($orderby == 'type') {
-        echo $liste->awardsNachTyp($year, $start, $type, $awardnameid, $showname, $showyear, $display);
+        echo $liste->awardsNachTyp($year, $start, $type, $awardnameid, $showname, $showyear, $showawardname, $display);
     } elseif ($orderby == 'year') {
-        echo $liste->awardsNachJahr($year, $start, $type, $awardnameid, $showname, 0, $display);
+        echo $liste->awardsNachJahr($year, $start, $type, $awardnameid, $showname, 0, $showawardname, $display);
     } else {
-        echo $liste->awardsListe($year, $start, $type, $awardnameid, $showname, $showyear, $display);
+        echo $liste->awardsListe($year, $start, $type, $awardnameid, $showname, $showyear, $showawardname, $display);
     }
 } else {
     // Publications
