@@ -11,11 +11,11 @@ class Publikationen {
     public $output;
 
     public function __construct($einheit = '', $id = '') {
-        $this->cms = 'wbk';
         new CRIS();
+        $this->cms = 'wbk';
         $this->options = CRIS::ladeConf();
         $this->orgNr = $this->options['CRISOrgNr'];
-        $this->order = $this->options['Reihenfolge_Publikationen'];
+        $this->order = explode("|", $this->options['Reihenfolge_Publikationen']);
         $this->univisLink = isset($this->options['Personeninfo_Univis']) ? $this->options['Personeninfo_Univis'] : 0;
         $this->pathPersonenseiteUnivis = $this->options['Pfad_Personenseite_Univis'] . '/';
         $this->bibtex = $this->options['BibTex'];
@@ -33,7 +33,19 @@ class Publikationen {
             $this->id = $this->orgNr;
             $this->einheit = "orga";
         }
-        //var_dump($locale);
+
+        if ($this->cms == 'wbk' && $this->univisLink == 1) {
+            $this->univisID = Tools::get_univis_id();
+            $url = "http://univis.uni-erlangen.de/prg?search=departments&number=" . $this->univisID . "&show=xml";
+            $daten = Tools::XML2obj($url);
+            foreach ($daten->Person as $person) {
+                //var_dump($person->firstname);
+                $univis[] = array ('firstname' => (string) $person->firstname,
+                                   'lastname' => (string) $person->lastname);
+            }
+        //print_r($univis);
+            $this->univis = $univis;
+        }
     }
 
     /*
@@ -122,7 +134,7 @@ class Publikationen {
                 $order[] = Tools::getPubName($value, "en");
             }
         }
-//            print_r($order);
+
         // sortiere nach Typenliste, innerhalb des Jahres nach Jahr abwärts sortieren
         $formatter = new CRIS_formatter("publication type", array_values($order), "publyear", SORT_DESC);
         $pubList = $formatter->execute($pubArray);
@@ -274,10 +286,8 @@ class Publikationen {
                 $authordata = $span_pre . $author['name'] . $span_post;
                 $author_firstname = explode(" ", $author['name'])[1];
                 $author_lastname = explode(" ", $author['name'])[0];
-                if ($author['id']
-                        && !in_array($author['id'], array('invisible', 'external'))
-                        && $this->univisLink == 1
-                        && Tools::person_exists($this->cms, $author_firstname, $author_lastname, $author['id'], $this->orgNr)) {
+                if ($this->univisLink == 1
+                        && Tools::person_exists($this->cms, $author_firstname, $author_lastname, $this->univis)) {
                     $link_pre = "<a href=\"" . $this->pathPersonenseiteUnivis . Tools::person_slug($this->cms, $author_firstname, $author_lastname) . "\">";
                     $link_post = "</a>";
                     $authordata = $link_pre . $authordata . $link_post;
