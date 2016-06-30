@@ -287,7 +287,7 @@ class Auszeichnungen {
             $preistraeger_firstname = explode(" ", $award['award_preistraeger'])[0];
             $preistraeger_lastname = array_pop((array_slice(explode(" ", $award['award_preistraeger']), -1)));
             if ($this->cris_award_link == 1
-                && Tools::person_exists($this->cms, $preistraeger_firstname, $preistraeger_lastname, 0, $this->orgNr)) {
+                    && Tools::person_exists($this->cms, $preistraeger_firstname, $preistraeger_lastname, $this->univis)) {
                 $link_pre = "<a href=\"" . $this->pathPersonenseiteUnivis . Tools::person_slug($this->cms, $preistraeger_firstname, $preistraeger_lastname) . "\">";
                 $link_post = "</a>";
                 $award_preistraeger = $link_pre . $award_preistraeger . $link_post;
