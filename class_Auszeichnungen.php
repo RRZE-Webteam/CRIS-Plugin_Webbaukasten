@@ -16,7 +16,7 @@ class Auszeichnungen {
         $this->options = CRIS::ladeConf();
         $this->orgNr = $this->options['CRISOrgNr'];
         $this->order = explode("|", $this->options['Reihenfolge_Auszeichnungen']);
-        $this->cris_award_link = isset($this->options['Personeninfo_Univis_Auszeichnungen']) ? $this->options['Personeninfo_Univis_Auszeichnungen'] : 0;
+        $this->cris_award_link = isset($this->options['Personeninfo_Univis_Auszeichnungen']) ? $this->options['Personeninfo_Univis_Auszeichnungen'] : 'none';
         $this->pathPersonenseiteUnivis = $this->options['Pfad_Personenseite_Univis'] . '/';
         $this->suchstring = '';
 
@@ -33,18 +33,25 @@ class Auszeichnungen {
             $this->einheit = "orga";
         }
 
-        if ($this->cms == 'wbk' && $this->cris_award_link == 1) {
+        $univis = NULL;
+        if ($this->cms == 'wbk' && $this->cris_award_link == 'person') {
             $this->univisID = Tools::get_univis_id();
-            $url = "http://univis.uni-erlangen.de/prg?search=persons&department=" . $this->univisID . "&show=xml";
-            $daten = Tools::XML2obj($url);
+            // Ich liebe UnivIS: Welche Abfrage liefert mehr Ergebnisse (hängt davon ab, wie die
+            // Mitarbeiter der Institution zugeordnet wurden...)?
+            $url1 = "http://univis.uni-erlangen.de/prg?search=departments&number=" . $this->univisID . "&show=xml";
+            $daten1 = Tools::XML2obj($url1);
+            $num1 = count($daten1->Person);
+            $url2 = "http://univis.uni-erlangen.de/prg?search=persons&department=" . $this->univisID . "&show=xml";
+            $daten2 = Tools::XML2obj($url2);
+            $num2 = count($daten2->Person);
+            $daten = $num1 > $num2 ? $daten1 : $daten2;
+
             foreach ($daten->Person as $person) {
-                //var_dump($person->firstname);
-                $univis[] = array ('firstname' => (string) $person->firstname,
+                $univis[] = array('firstname' => (string) $person->firstname,
                                    'lastname' => (string) $person->lastname);
             }
-        //print_r($univis);
-            $this->univis = $univis;
         }
+        $this->univis = $univis;
     }
 
     /*
@@ -230,12 +237,25 @@ class Auszeichnungen {
             $award_preistraeger = $award['award_preistraeger'];
             $preistraeger_firstname = explode(" ", $award['award_preistraeger'])[0];
             $preistraeger_lastname = array_pop((array_slice(explode(" ", $award['award_preistraeger']), -1)));
-            if ($this->cris_award_link == 1
-                    && Tools::person_exists($this->cms, $preistraeger_firstname, $preistraeger_lastname, $this->univis)) {
+            $preistraeger_id = $award['relpersid'];
+            switch ($this->cris_award_link) {
+                case 'cris' :
+                    if (is_numeric($preistraeger_id)) {
+                        $link_pre = "<a href=\"https://cris.fau.de/converis/publicweb/Person/" . $preistraeger_id . "\" class=\"extern\">";
+                        $link_post = "</a>";
+                        $award_preistraeger = $link_pre . $award_preistraeger . $link_post;
+                    }
+                    break;
+                case 'person':
+                    if (Tools::person_exists($this->cms, $preistraeger_firstname, $preistraeger_lastname, $this->univis)) {
                 $link_pre = "<a href=\"" . $this->pathPersonenseiteUnivis . Tools::person_slug($this->cms, $preistraeger_firstname, $preistraeger_lastname) . "\">";
                 $link_post = "</a>";
                 $award_preistraeger = $link_pre . $award_preistraeger . $link_post;
             }
+                    break;
+                default:
+            }
+
             if (!empty($award['award_name'])) {
                 $award_name = $award['award_name'];
             } elseif (!empty($award['award_name_manual'])) {
@@ -286,12 +306,25 @@ class Auszeichnungen {
             $award_preistraeger = $award['award_preistraeger'];
             $preistraeger_firstname = explode(" ", $award['award_preistraeger'])[0];
             $preistraeger_lastname = array_pop((array_slice(explode(" ", $award['award_preistraeger']), -1)));
-            if ($this->cris_award_link == 1
-                    && Tools::person_exists($this->cms, $preistraeger_firstname, $preistraeger_lastname, $this->univis)) {
+            $preistraeger_id = $award['relpersid'];
+            switch ($this->cris_award_link) {
+                case 'cris' :
+                    if (is_numeric($preistraeger_id)) {
+                        $link_pre = "<a href=\"https://cris.fau.de/converis/publicweb/Person/" . $preistraeger_id . "\" class=\"extern\">";
+                        $link_post = "</a>";
+                        $award_preistraeger = $link_pre . $award_preistraeger . $link_post;
+                    }
+                    break;
+                case 'person':
+                    if (Tools::person_exists($this->cms, $preistraeger_firstname, $preistraeger_lastname, $this->univis)) {
                 $link_pre = "<a href=\"" . $this->pathPersonenseiteUnivis . Tools::person_slug($this->cms, $preistraeger_firstname, $preistraeger_lastname) . "\">";
                 $link_post = "</a>";
                 $award_preistraeger = $link_pre . $award_preistraeger . $link_post;
             }
+                    break;
+                default:
+            }
+
             if (!empty($award['award_name'])) {
                 $award_name = $award['award_name'];
             } elseif (!empty($award['award_name_manual'])) {
@@ -306,12 +339,12 @@ class Auszeichnungen {
             $award_pic = self::get_pic($award['ID']);
 
             $awardlist .= "<li>";
-            $awardlist .= strlen($award_pic) > 50 ? "<img alt=\"Portrait " . $award['award_preistraeger'] . "\" src=\"" . $award_pic . "\"  />" : "<div class=\"noimage\">&nbsp</div>";
-            $awardlist .= $name == 1 ? $award_preistraeger . "<br />" : '';
-            $awardlist .= $awardname == 1 ? "<strong>" . $award_name . "</strong> "
-                    . ((isset($organisation) && $award['type of award'] != 'Akademie-Mitgliedschaft') ? " (" . $organisation . ")" : "") . "<br />" : '';
-            $awardlist .= ($year == 1 && !empty($award_year)) ? $award_year : '';
-
+            $awardlist .= (isset($award_pic['png']) && strlen($award_pic['png']) > 30) ? "<img alt=\"Portrait " . $award['award_preistraeger'] . "\" src=\"" . $award_pic['png'] . "\"  />" : "<div class=\"noimage\">&nbsp</div>";
+            $awardlist .= $name == 1 ? $award_preistraeger : '';
+            $awardlist .= $awardname == 1 ? "<br /><strong>" . $award_name . "</strong> " : '';
+            $awardlist .= (isset($organisation) && $award['type of award'] != 'Akademie-Mitgliedschaft') ? " (" . $organisation . ")" : "";
+            $awardlist .= ($year == 1 && !empty($award_year)) ? "<br />" . $award_year : '';
+            $awardlist .= (isset($award_pic['desc']) && strlen($award_pic['desc']) > 0) ? "<br /><span class=\"imgsrc\">(" . _x('Bild:', 'Wird bei Galerien vor die Bildquelle geschrieben.', 'fau-cris') . " " . $award_pic['desc'] . ")</span>" : "";
             $awardlist .= "</li>";
         }
 
@@ -321,17 +354,29 @@ class Auszeichnungen {
     }
 
     private function get_pic($award) {
-        $pic = '';
 
+        $pic = array();
         $picString = "https://cris.fau.de/ws-cached/1.0/public/infoobject/getrelated/Award/" . $award . "/awar_has_pict";
         $picXml = Tools::XML2obj($picString);
 
         if ($picXml['size'] != 0) {
             foreach ($picXml->infoObject->attribute as $picAttribut) {
                 if ($picAttribut['name'] == 'png180') {
-                    $pic = 'data:image/PNG;base64,' . $picAttribut->data;
+                    if (!empty($picAttribut->data)) {
+                    $pic['png'] = 'data:image/PNG;base64,' . $picAttribut->data;
+                    } else {
+                        // Wenn es kein Bild gibt, braucht er auch die Quelle nicht auslesen
+                        return $pic;
                 }
             }
+            }
+            foreach ($picXml->infoObject->relation->attribute as $picRelAttribut) {
+                if ($picRelAttribut['name'] == 'description') {
+                    if (!empty($picRelAttribut->data)) {
+                    $pic['desc'] = (string) $picRelAttribut->data;
+                }
+            }
+        }
         }
         return $pic;
     }
@@ -342,7 +387,8 @@ class CRIS_awards extends CRIS_webservice {
     /*
      * awards/grants requests
      */
-    public function by_orga_id($orgaID=null, &$filter=null) {
+
+    public function by_orga_id($orgaID = null, &$filter = null) {
         if ($orgaID === null || $orgaID === "0")
             throw new Exception('Please supply valid organisation ID');
 
@@ -356,7 +402,7 @@ class CRIS_awards extends CRIS_webservice {
         return $this->retrieve($requests, $filter);
     }
 
-    public function by_pers_id($persID=null, &$filter=null) {
+    public function by_pers_id($persID = null, &$filter = null) {
         if ($persID === null || $persID === "0")
             throw new Exception('Please supply valid person ID');
 
@@ -370,7 +416,7 @@ class CRIS_awards extends CRIS_webservice {
         return $this->retrieve($requests, $filter);
     }
 
-    public function by_id($awarID=null) {
+    public function by_id($awarID = null) {
         if ($awarID === null || $awarID === "0")
             throw new Exception('Please supply valid award ID');
 
@@ -384,7 +430,7 @@ class CRIS_awards extends CRIS_webservice {
         return $this->retrieve($requests);
     }
 
-    public function by_awardtype_id($awatID=null) {
+    public function by_awardtype_id($awatID = null) {
         if ($awatID === null || $awatID === "0")
             throw new Exception('Please supply valid award ID');
 
@@ -398,7 +444,7 @@ class CRIS_awards extends CRIS_webservice {
         return $this->retrieve($requests);
     }
 
-    private function retrieve($reqs, &$filter=null) {
+    private function retrieve($reqs, &$filter = null) {
         if ($filter !== null && !$filter instanceof CRIS_filter)
             $filter = new CRIS_filter($filter);
 
@@ -425,13 +471,16 @@ class CRIS_awards extends CRIS_webservice {
 
         return $awards;
     }
+
 }
 
 class CRIS_award extends CRIS_Entity {
     /*
      * object for single award
      */
+
     function __construct($data) {
         parent::__construct($data);
     }
+
 }
