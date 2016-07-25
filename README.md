@@ -1,7 +1,7 @@
 CRIS-Plugin_Webbaukasten
 ========================
 
-Version 1.81 (Stand 30.06.2016)
+Version 1.9 (Stand 25.07.2016)
 
 Einbinden von Daten aus dem FAU-Forschungsinformationssystem <b>CRIS</b> in Webseiten
 
@@ -88,9 +88,10 @@ Eintrag | Beispiel | Erklärung |
 CRISOrgNr | 1234567 <em>oder</em>123456, 987654 | CRIS-Organisationsnummer. Sie können auch mehrere Organisations-IDs angeben, durch Komma getrennt. |
 Reihenfolge_Publikationen | konferenzbeitraege&#124;zeitschriftenartikel&#124;buecher&#124;sammelbandbeitraege&#124;uebersetzungen&#124;herausgeberschaften&#124;abschlussarbeiten&#124;andere | Reihenfolge, wenn die Publikationsliste nach Publikationstypen gegliedert werden soll|
 Pfad_Personenseite | /cris/person.shtml | für Links von Publikations- und Mitarbeiterlisten auf Personen-Detailseite |
-Personeninfo_Univis | 1 | In Publikationslisten Autoren mit ihrer UnivIS-Personenseite verlinken?; 1=ja, 0=nein; UnivIS-Plugin muss installiert und eingerichtet sein |
+Personeninfo_Univis | person | Autoren in Publikationslisten verlinken?<br />person = Link zur UnivIS-Personenseite auf diesem Webauftritt (UnivIS-Plugin muss installiert und eingerichtet sein)<br />cris = Link zur Personenseite auf cris.fau.de<br />none = keinen Link setzen |
 Pfad_Personenseite_Univis | /wir-ueber-uns/mitarbeiter/mitarbeiter.shtml | Pfad zur UnivIS-Personenseite |
-Reihenfolge_Auszeichnungen | preise&#124;stipendien&#124;mitgliedschaften&#124;andere | Reihenfolge, wenn die Auszeichnungen nach Typen gegliedert werden sollen|
 BibTex | 1 | Soll unter den einzelnen Publikationen ein Link zum BibTex-Export der Publikationsdaten angezeigt werden? 1=ja, 0=nein.|
+Reihenfolge_Auszeichnungen | preise&#124;stipendien&#124;mitgliedschaften&#124;andere | Reihenfolge, wenn die Auszeichnungen nach Typen gegliedert werden sollen|
+Personeninfo_Univis_Auszeichnungen | person | Preisträger verlinken?<br />person = Link zur UnivIS-Personenseite auf diesem Webauftritt (UnivIS-Plugin muss installiert und eingerichtet sein)<br />cris = Link zur Personenseite auf cris.fau.de<br />none = keinen Link setzen |
 Sprache | de | Sprache z.B. der Publikationstypen. Bislang verfügbar: de und en.|
 Cache_Zeit | 43200 | Wie lange sollen die Seiten im Cache zwischengespeichert werden? Angabe in Sekunden: 43200 Sek. = 12 Std.|

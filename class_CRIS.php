@@ -64,14 +64,14 @@ class CRIS {
                 'Other'
             ),
             'Pfad_Personenseite' => 'mitarbeiter',
-            'Personeninfo_Univis' => '1',
+            'Personeninfo_Univis' => '',
             'Pfad_Personenseite_Univis' => '/wir-ueber-uns/mitarbeiter/mitarbeiter.shtml',
 //			'Zeige_Auszeichnungen'	=>	'0',
             'cris_cache' => '18000',
             'cris_ignore' => array('FoDa-Administrator/in', 'Andere'),
             'Sprache' => 'de_DE',
             'BibTex' => '1',
-            'Personeninfo_Univis_Auszeichnungen' => '1'
+            'Personeninfo_Univis_Auszeichnungen' => ''
         );
 
         // load options
