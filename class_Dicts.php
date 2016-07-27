@@ -11,6 +11,7 @@ class CRIS_Dicts {
         'persid' => '',
         'publication' => '',
         'pubtype' => '',
+        'sortby' => '',
         'award' => '',
         'type' => '',
         'showname' => 1,
