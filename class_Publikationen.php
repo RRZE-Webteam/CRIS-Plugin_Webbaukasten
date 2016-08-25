@@ -298,28 +298,11 @@ class Publikationen {
                 $span_pre = "<span class=\"author\">";
                 $span_post = "</span>";
                 $authordata = $span_pre . $author['name'] . $span_post;
-                $author_firstname = explode(" ", $author['name'])[1];
-                $author_lastname = explode(" ", $author['name'])[0];
-
-                switch ($this->univisLink) {
-                    case 'cris' :
-                        if (is_numeric($author['id'])) {
-                            $link_pre = "<a href=\"https://cris.fau.de/converis/publicweb/Person/" . $author['id'] . "\" class=\"extern\">";
-                            $link_post = "</a>";
-                            $authordata = $link_pre . $authordata . $link_post;
+                $author_elements = explode(" ", $author['name']);
+                $author_firstname = array_pop($author_elements);
+                $author_lastname = implode(" ", $author_elements);
+                $authorList[] = Tools::get_person_link($author['id'], $author_firstname, $author_lastname, $this->univisLink, $this->cms, $this->pathPersonenseiteUnivis, $this->univis, 1);
                         }
-                        break;
-                    case 'person':
-                        if (Tools::person_exists($this->cms, $author_firstname, $author_lastname, $this->univis)) {
-                    $link_pre = "<a href=\"" . $this->pathPersonenseiteUnivis . Tools::person_slug($this->cms, $author_firstname, $author_lastname) . "\">";
-                    $link_post = "</a>";
-                    $authordata = $link_pre . $authordata . $link_post;
-                }
-                        break;
-                    default:
-                }
-                $authorList[] = $authordata;
-            }
             $publist .= implode(", ", $authorList);
             $publist .= ($pubDetails['pubType'] == 'Editorial' ? ' (' . __('Hrsg.', 'fau-cris') . '):' : ':');
 

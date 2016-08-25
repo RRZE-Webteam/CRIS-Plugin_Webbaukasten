@@ -222,8 +222,7 @@ class Tools {
         } else {
             // Webbaukasten
             foreach ($univis as $_p) {
-                if (strpos($_p['firstname'], $firstname) !== false
-                 && strpos($_p['lastname'], $lastname) !== false) {
+                if (strpos($_p['firstname'], $firstname) !== false && strpos($_p['lastname'], $lastname) !== false) {
                     return true;
                 }
            }
@@ -240,7 +239,7 @@ class Tools {
             $person_slug = $wpdb->get_var($sql);
         } else {
             //Webbauksten
-            $person_slug = strtolower($firstname) . "-" . strtolower($lastname).".shtml";
+            $person_slug = strtolower($firstname) . "-" . strtolower($lastname) . ".shtml";
         }
         return $person_slug;
     }
@@ -262,6 +261,36 @@ class Tools {
         }
 	fclose($fh);
         return $univisID;
+    }
+
+    public static function get_person_link($id, $firstname, $lastname, $target, $cms, $path, $univis, $inv = 0) {
+        $person = '';
+        switch ($target) {
+            case 'cris' :
+                if (is_numeric($id)) {
+                    $link_pre = "<a href=\"https://cris.fau.de/converis/publicweb/Person/" . $id . "\" class=\"extern\">";
+                    $link_post = "</a>";
+                } else {
+                    $link_pre = '';
+                    $link_post = '';
+}
+                break;
+            case 'person':
+                if (self::person_exists($cms, $firstname, $lastname, $univis)) {
+                    $link_pre = "<a href=\"" . $path . self::person_slug($cms, $firstname, $lastname) . "\">";
+                    $link_post = "</a>";
+                } else {
+                    $link_pre = '';
+                    $link_post = '';
+                }
+                break;
+            default:
+                $link_pre = '';
+                $link_post = '';
+        }
+        $name = $inv == 0 ? $firstname . " " . $lastname : $lastname . " " . $firstname;
+        $person = $link_pre . $name . $link_post;
+        return $person;
     }
 
 }
