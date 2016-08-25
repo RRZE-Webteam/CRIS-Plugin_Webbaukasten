@@ -49,6 +49,33 @@ class Tools {
         return CRIS_Dicts::$awardTitles[$award]['en_US'];
     }
 
+    public static function getProjName($proj, $lang) {
+        $lang = strpos($lang, 'de') === 0 ? 'de' : 'en';
+        if (array_key_exists($lang, CRIS_Dicts::$projNames[$proj])) {
+            return CRIS_Dicts::$projNames[$proj][$lang];
+        }
+        return CRIS_Dicts::$projNames[$proj]['en'];
+    }
+
+    public static function getProjTitle($proj, $lang) {
+        if (array_key_exists($lang, CRIS_Dicts::$projTitles[$proj])) {
+            return CRIS_Dicts::$projTitles[$proj][$lang];
+        }
+        if (strpos($lang, 'de_') === 0) {
+            return CRIS_Dicts::$projTitles[$proj]['de_DE'];
+        }
+        return CRIS_Dicts::$projTitles[$proj]['en_US'];
+    }
+
+    public static function getprojTranslation($proj, $lang) {
+        $lang = strpos($lang, 'de') === 0 ? 'de' : 'en';
+        foreach (CRIS_Dicts::$projNames as $name) {
+            if ($name['de'] == $proj || $name['en'] == $proj) {
+                return $name[$lang];
+            }
+        }
+    }
+
     public static function XML2obj($xml_url) {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $xml_url);
@@ -205,6 +232,29 @@ class Tools {
         if ($type !== '' && $type !== NULL) {
             $type = Tools::getAwardName($type, "de");
             $filter['type of award__eq'] = $type;
+        }
+        if (count($filter))
+            return $filter;
+        return null;
+    }
+
+    /*
+     * Array zur Definition des Filters für Projekte
+     */
+
+    public static function project_filter($year = '', $start = '', $type = '') {
+        $filter = array();
+        if ($year !== '' && $year !== NULL)
+            $filter['cfstartdate__eq'] = $year;
+        if ($start !== '' && $start !== NULL)
+            $filter['cfstartdate__ge'] = $start;
+        if ($type !== '' && $type !== NULL) {
+            $projTyp = Tools::getProjName($type, "en");
+            if (empty($projTyp)) {
+                $output .= '<p>' . __('Falscher Parameter für Projekttyp', '') . '</p>';
+                return $output;
+            }
+            $filter['project type__eq'] = $projTyp;
         }
         if (count($filter))
             return $filter;

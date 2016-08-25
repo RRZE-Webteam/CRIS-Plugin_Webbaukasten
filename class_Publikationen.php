@@ -196,6 +196,27 @@ class Publikationen {
         return $output;
     }
 
+    public function projectPub($project, $quotation = '') {
+        $ws = new CRIS_publications();
+
+        try {
+            $pubArray = $ws->by_project($project);
+        } catch (Exception $ex) {
+            return;
+        }
+
+        if (!count($pubArray))
+            return;
+
+        if ($quotation == 'apa' || $quotation == 'mla') {
+            $output = $this->make_quotation_list($pubArray, $quotation);
+        } else {
+            $output = $this->make_list($pubArray);
+        }
+
+        return $output;
+    }
+
     /* =========================================================================
      * Private Functions
       ======================================================================== */
@@ -464,6 +485,20 @@ class CRIS_publications extends CRIS_webservice {
         $requests = array();
         foreach ($publID as $_p) {
             $requests[] = sprintf('get/Publication/%d', $_p);
+        }
+        return $this->retrieve($requests);
+    }
+
+    public function by_project($projID = null) {
+        if ($projID === null || $projID === "0")
+            throw new Exception('Please supply valid publication ID');
+
+        if (!is_array($projID))
+            $projID = array($projID);
+
+        $requests = array();
+        foreach ($projID as $_p) {
+            $requests[] = sprintf('getrelated/Project/%d/proj_has_publ', $_p);
         }
         return $this->retrieve($requests);
     }

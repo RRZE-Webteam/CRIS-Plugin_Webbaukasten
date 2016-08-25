@@ -41,11 +41,19 @@ $showyear = isset($_GET['showyear']) ? $_GET['showyear'] : CRIS_Dicts::$defaults
 $showawardname = isset($_GET['showawardname']) ? $_GET['showawardname'] : CRIS_Dicts::$defaults['showawardname'];
 $display = isset($_GET['display']) ? $_GET['display'] : CRIS_Dicts::$defaults['display'];
 $items = isset($_GET['items']) ? $_GET['items'] : CRIS_Dicts::$defaults['items'];
+$project = isset($_GET['project']) ? $_GET['project'] : '';
+$hide = isset($_GET['hide']) ? $_GET['hide'] : '';
+$hide = str_replace(" ", "", $hide);
+$hide = explode(",", $hide);
+$role = isset($_GET['role']) ? $_GET['role'] : CRIS_Dicts::$defaults['role'];
 
 // Filterkriterien
 if (isset($publication) && $publication != '') {
     $param1 = 'publication';
     $param2 = $publication;
+} elseif (isset($project) && $project != '') {
+    $param1 = 'project';
+    $param2 = $project;
 } elseif (isset($award) && $award != '') {
     $param1 = 'award';
     $param2 = $award;
@@ -68,7 +76,23 @@ if (isset($publication) && $publication != '') {
 }
 
 // Ausgabe
-if (isset($show) && $show == 'awards') {
+if (isset($show) && $show == 'projects') {
+    // Projekte
+    require_once('class_Projekte.php');
+    $liste = new Projekte($param1, $param2);
+
+    if ($project != '') {
+        echo $liste->singleProj($hide);
+    } elseif (!empty($items)) {
+        echo $liste->projListe($year, $start, $type, $items, $hide, $role);
+    } elseif ($orderby == 'type') {
+        echo $liste->projNachTyp($year, $start, $type, $hide, $role);
+    } elseif ($orderby == 'year') {
+        echo $liste->projNachJahr($year, $start, $type, $hide, $role);
+    } else {
+        echo $liste->projListe($year, $start, $type, $items, $hide, $role);
+    }
+} elseif (isset($show) && $show == 'awards') {
     // Awards
     require_once('class_Auszeichnungen.php');
     $liste = new Auszeichnungen($param1, $param2, $display);
