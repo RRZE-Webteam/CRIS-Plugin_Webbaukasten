@@ -245,9 +245,9 @@ class Tools {
     public static function project_filter($year = '', $start = '', $type = '') {
         $filter = array();
         if ($year !== '' && $year !== NULL)
-            $filter['cfstartdate__eq'] = $year;
+            $filter['startyear__eq'] = $year;
         if ($start !== '' && $start !== NULL)
-            $filter['cfstartdate__ge'] = $start;
+            $filter['startyear__ge'] = $start;
         if ($type !== '' && $type !== NULL) {
             $projTyp = Tools::getProjName($type, "en");
             if (empty($projTyp)) {
@@ -339,7 +339,7 @@ class Tools {
                 $link_post = '';
         }
         $name = $inv == 0 ? $firstname . " " . $lastname : $lastname . " " . $firstname;
-        $person = $link_pre . $name . $link_post;
+        $person = "<span class=\"author\" itemprop=\"author\">" . $link_pre . $name . $link_post . "</span>";
         return $person;
     }
 
