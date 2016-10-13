@@ -3,7 +3,7 @@ CRIS-Plugin_Webbaukasten
 
 Version 2.1 (Stand 07.09.2016)
 
-Einbinden von Daten aus dem FAU-Forschungsinformationssystem <b>CRIS</b> in Webseiten
+Einbinden von Daten aus dem FAU-Forschungsinformationssystem <b>CRIS</b> in Webseiten, die auf Basis des Webbaukastens der FAU (http://www.webbaukasten.fau.de) gestaltet sind. 
 
 Aktuell werden folgende in CRIS erfasste Forschungsleistungen unterstützt:
 - Publikationen
@@ -11,10 +11,12 @@ Aktuell werden folgende in CRIS erfasste Forschungsleistungen unterstützt:
 
 Weitere Informationen entnehmen Sie auch der Dokumentation unter http://www.webbaukasten.fau.de/anwendungen/cris.shtml 
 
+
 ## Installation
 - Installation analog zu den übrigen Webbaukasten-Plugins in /vkdaten/tools/cris/
 - Fügen Sie außerdem in die Datei ssi/head.shtm folgende Zeile ein:<br />
   <code>&lt;link href="/vkdaten/tools/cris/cris.css" type="text/css" rel="stylesheet"&gt;</code>
+- Bei selbst verwalteten Webauftritten auf eigenen Servern ist darauf zu achten, dass der Webserver Server Side Includes verarbeiten kann. Die definierte Struktur des Webbaukastens wird vorausgesetzt.  
 
 ## Include
 - Publikationsliste (automatisch nach Jahren gegliedert):<br />
