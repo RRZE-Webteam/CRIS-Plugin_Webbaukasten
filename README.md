@@ -9,6 +9,8 @@ Aktuell werden folgende in CRIS erfasste Forschungsleistungen unterstützt:
 - Publikationen
 - Auszeichnungen
 
+Weitere Informationen entnehmen Sie auch der Dokumentation unter http://www.webbaukasten.fau.de/anwendungen/cris.shtml 
+
 ## Installation
 - Installation analog zu den übrigen Webbaukasten-Plugins in /vkdaten/tools/cris/
 - Fügen Sie außerdem in die Datei ssi/head.shtm folgende Zeile ein:<br />
