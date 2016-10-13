@@ -11,6 +11,8 @@ Aktuell werden folgende in CRIS erfasste Forschungsleistungen unterstützt:
 
 Weitere Informationen entnehmen Sie auch der Dokumentation unter http://www.webbaukasten.fau.de/anwendungen/cris.shtml 
 
+Hinweis: Für die Einbindung von CRIS in WordPress wird das Plugin FAU-CRIS verwendet: https://github.com/RRZE-Webteam/fau-cris 
+
 
 ## Installation
 - Installation analog zu den übrigen Webbaukasten-Plugins in /vkdaten/tools/cris/
