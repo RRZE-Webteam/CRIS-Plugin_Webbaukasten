@@ -30,6 +30,11 @@ class CRIS {
                 return _($text);
             }
         }
+        if (!function_exists("_x")) {
+            function _x($text, $x=null, $y=null) {
+                return _($text);
+            }
+        }
         if (!function_exists("get_locale")) {
             function get_locale() {
                 new CRIS();
@@ -37,7 +42,6 @@ class CRIS {
                 return $locale;
             }
         }
-
     }
 
     public static function getLocale() {
@@ -52,34 +56,66 @@ class CRIS {
         // defaults
         $defaults = array(
             'CRISOrgNr' => '0',
-            'Zeige_Publikationen' => '1',
-            'Reihenfolge_Publikationen' => array(
-                'Journal article',
-                'Article in edited volumes',
-                'Translation',
-                'Book',
-                'Editorial',
-                'Conference Contribution',
-                'Thesis',
-                'Other'
-            ),
             'Pfad_Personenseite' => 'mitarbeiter',
-            'Personeninfo_Univis' => '',
             'Pfad_Personenseite_Univis' => '/wir-ueber-uns/mitarbeiter/mitarbeiter.shtml',
-//			'Zeige_Auszeichnungen'	=>	'0',
             'cris_cache' => '18000',
-            'cris_ignore' => array('FoDa-Administrator/in', 'Andere'),
             'Sprache' => 'de_DE',
+            'Reihenfolge_Publikationen' => array(
+                'buecher',
+                'zeitschriftenartikel',
+                'sammelbandbeitraege',
+                'herausgeberschaften',
+                'konferenzbeitraege',
+                'uebersetzungen',
+                'abschlussarbeiten',
+                'andere'
+            ),
+            'Personeninfo_Univis' => 'none',
             'BibTex' => '1',
-            'Personeninfo_Univis_Auszeichnungen' => ''
+            'Reihenfolge_Auszeichnungen' => array(
+                'preise',
+                'mitgliedschaften',
+                'stipendien',
+                'mitgliedschaften',
+                'andere'
+                ),
+            'Personeninfo_Univis_Auszeichnungen' => 'none',
+            'Reihenfolge_Projekte' => array(
+                'einzelfoerderung',
+                'teilprojekt',
+                'gesamtprojekt',
+                'graduiertenkolleg',
+                'eigenmittel'
+            ),
+            'Personeninfo_Univis_Projekte' => 'none',
+            'Reihenfolge_Patente' => array(
+                'patentanmeldung',
+                'gebrauchsmuster',
+                'schutzrecht',
+                'nachanmeldung',
+                'nationalisierung',
+                'validierung'
+            ),
+            'Personeninfo_Univis_Patente' => 'none',
+            'Reihenfolge_Aktivitaeten' => array(
+                'organisation_konferenz',
+                'fau-gremienmitgliedschaft',
+                'herausgeberschaft',
+                'gutachter_zeitschrift',
+                'gutachter_organisation',
+                'gutachter_sonstige',
+                'dfg-fachkollegiat',
+                'mitglied_wissenschaftsrat',
+                'vortrag',
+                'medien',
+                'sonstige'
+            ),
+            'Personeninfo_Univis_Aktivitaeten' => 'none',
         );
 
         // load options
-        //if ($fpath == NULL) {
-            $fpath = '../../cris.conf';
-        //}
+        $fpath = '../../cris.conf';
         $fpath_alternative = $_SERVER["DOCUMENT_ROOT"] . '/vkdaten/cris.conf';
-
         if (file_exists($fpath_alternative)) {
             $fpath = $fpath_alternative;
         }
@@ -120,6 +156,43 @@ class CRIS {
         if ($args) {
             $options = array_merge($options, $args);
         }
+
+        // fit WBK keys to WP keys
+        $options["cris_org_nr"] = $options["CRISOrgNr"];
+        unset($options["CRISOrgNr"]);
+
+        $options["cris_univis"] = $options["Personeninfo_Univis"];
+        unset($options["Personeninfo_Univis"]);
+
+        $options["cris_pub_order"] = explode("|", $options['Reihenfolge_Publikationen']);
+        unset($options["Reihenfolge_Publikationen"]);
+
+        $options["cris_bibtex"] = $options["BibTex"];
+        unset($options["BibTex"]);
+
+        $options["cris_award_link"] = $options["Personeninfo_Univis_Auszeichnungen"];
+        unset($options["Personeninfo_Univis_Auszeichnungen"]);
+
+        $options["cris_award_order"] = explode("|", $options["Reihenfolge_Auszeichnungen"]);
+        unset($options["Reihenfolge_Auszeichnungen"]);
+
+        $options["cris_project_order"] = explode("|", $options["Reihenfolge_Projekte"]);
+        unset($options["Reihenfolge_Projekte"]);
+
+        $options["cris_project_link"] = $options["Personeninfo_Univis_Projekte"];
+        unset($options["Personeninfo_Univis_Projekte"]);
+
+        $options["cris_patent_order"] =  explode("|", $options["Reihenfolge_Patente"]);
+        unset($options["Reihenfolge_Patente"]);
+
+        $options["cris_patent_link"] = $options["Personeninfo_Univis_Patente"];
+        unset($options["Personeninfo_Univis_Patente"]);
+
+        $options["cris_activities_order"] =  explode("|", $options["Reihenfolge_Aktivitaeten"]);
+        unset($options["Reihenfolge_Aktivitaeten"]);
+
+        $options["cris_activities_link"] =  $options["Personeninfo_Univis_Aktivitaeten"];
+        unset($options["Personeninfo_Univis_Aktivitaeten"]);
 
         return $options;
     }
