@@ -30,7 +30,7 @@ class Auszeichnungen {
         if ($this->cms == 'wbk' && $this->cris_award_link == 'person') {
             $this->univis = Tools::get_univis();
         }
-        
+
         if ((!$this->orgNr || $this->orgNr == 0) && $id == '') {
             print '<p><strong>' . __('Bitte geben Sie die CRIS-ID der Organisation, Person oder Auszeichnung an.', 'fau-cris') . '</strong></p>';
             return;
@@ -323,7 +323,7 @@ class Auszeichnungen {
             $awardlist .= "<li>";
             $awardlist .= (isset($award_pic['png']) && strlen($award_pic['png']) > 30) ? "<img alt=\"Portrait " . $award['award_preistraeger'] . "\" src=\"" . $award_pic['png'] . "\"  />" : "<div class=\"noimage\">&nbsp</div>";
             $awardlist .= $name == 1 ? $award_preistraeger : '';
-            $awardlist .= (($awardname == 1) ? "<br /><strong>" . $award_name . "</strong> "
+            $awardlist .= (($awardname == 1) ? "<strong>" . $award_name . "</strong> "
                             . ((isset($organisation) && $award['type of award'] != 'Akademie-Mitgliedschaft') ? " (" . $organisation . ")" : "") : "" );
             $awardlist .= ($year == 1 && !empty($award_year)) ? "<br />" . $award_year : '';
             $awardlist .= (isset($award_pic['desc']) && strlen($award_pic['desc']) > 0) ? "<br /><span class=\"imgsrc\">(" . _x('Bild:', 'Wird bei Galerien vor die Bildquelle geschrieben.', 'fau-cris') . " " . $award_pic['desc'] . ")</span>" : "";

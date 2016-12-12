@@ -1,187 +1,230 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: FAU CRIS v2.1\n"
+"Project-Id-Version: FAU CRIS v3.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-06 15:43+0000\n"
-"PO-Revision-Date: 2016-09-06 15:43+0000\n"
+"POT-Creation-Date: 2016-12-12 11:35+0000\n"
+"PO-Revision-Date: 2016-12-12 11:36+0000\n"
 "Last-Translator: Barbara Bothe <barbara.bothe@fau.de>\n"
-"Language-Team: English (United States)\n"
-"Language: en-US\n"
+"Language-Team: English (UK)\n"
+"Language: en-GB\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: utf-8\n"
 "X-Generator: Loco - https://localise.biz/\n"
+"X-Poedit-Language: English\n"
+"X-Poedit-Country: UNITED KINGDOM\n"
 "X-Poedit-KeywordsList: _:1;gettext:1;dgettext:2;ngettext:1,2;dngettext:2,3;"
 "__:1;_e:1;_c:1;_n:1,2;_n_noop:1,2;_nc:1,2;__ngettext:1,2;__ngettext_noop:1,2;"
 "_x:1,2c;_ex:1,2c;_nx:1,2,4c;_nx_noop:1,2,3c;_n_js:1,2;_nx_js:1,2,3c;"
 "esc_attr__:1;esc_html__:1;esc_attr_e:1;esc_html_e:1;esc_attr_x:1,2c;"
 "esc_html_x:1,2c;comments_number_link:2,3;t:1;st:1;trans:1;transChoice:1,2\n"
-"X-Poedit-Basepath: ..\n"
-"X-Textdomain-Support: yes\n"
+"X-Poedit-Basepath: \n"
+"X-Poedit-Bookmarks: \n"
 "X-Poedit-SearchPath-0: .\n"
-"X-Loco-Target-Locale: en_US" 
+"X-Textdomain-Support: yes\n"
+"X-Loco-Target-Locale: en_GB"
 
-#: class_Publikationen.php:357 class_Publikationen.php:383
-#: class_Publikationen.php:456 class_Publikationen.php:490
-msgctxt "Abkürzung für \"Band\" bei Publikationen"
-msgid "Bd."
-msgstr "Vol."
+#: class_Patente.php:35
+msgid ""
+"Bitte geben Sie die CRIS-ID der Organisation, Person oder des Patents an."
+msgstr "Please provide a CRIS ID (from an organisation, a person or a patent)."
 
-#: class_Publikationen.php:402
-msgctxt "Abkürzung für \"Seite\" bei Publikationen"
-msgid "S."
-msgstr "p."
+#: class_Auszeichnungen.php:35
+msgid ""
+"Bitte geben Sie die CRIS-ID der Organisation, Person oder Auszeichnung an."
+msgstr "Please provide a CRIS ID (from an organisation, a person or an award)."
 
 # @ fau-cris
-#: class_Auszeichnungen.php:24 class_Publikationen.php:25 class_Projekte.php:24
-#: class_Publikationen_1.php:25
+#: class_Auszeichnungen.php:57 class_Auszeichnungen.php:85
+#: class_Auszeichnungen.php:124 class_Auszeichnungen.php:178
+msgid "Es wurden leider keine Auszeichnungen gefunden."
+msgstr "No awards found."
+
+#: class_Auszeichnungen.php:329
+msgctxt "Wird bei Galerien vor die Bildquelle geschrieben."
+msgid "Bild:"
+msgstr "Source: "
+
+# @ fau-cris
+#: class_Publikationen.php:35 class_Projekte.php:35
 msgid ""
 "Bitte geben Sie die CRIS-ID der Organisation, Person oder Publikation an."
 msgstr ""
 "Please provide a CRIS ID (from an organisation, a person or a publication)."
 
 # @ fau-cris
-#: class_Auszeichnungen.php:65 class_Auszeichnungen.php:93
-#: class_Auszeichnungen.php:126 class_Auszeichnungen.php:180
-msgid "Es wurden leider keine Auszeichnungen gefunden."
-msgstr "No awards found."
-
-#: class_Auszeichnungen.php:105
-msgid "Ohne Jahr"
-msgstr "no date"
-
-#: class_Auszeichnungen.php:331
-msgctxt "Wird bei Galerien vor die Bildquelle geschrieben."
-msgid "Bild:"
-msgstr "Source: "
-
-# @ fau-cris
-#: class_Publikationen.php:66 class_Publikationen.php:106
-#: class_Publikationen.php:136 class_Publikationen_1.php:66
-#: class_Publikationen_1.php:106 class_Publikationen_1.php:136
+#: class_Publikationen.php:57 class_Publikationen.php:97
+#: class_Publikationen.php:131
 msgid "Es wurden leider keine Publikationen gefunden."
 msgstr "No publications found."
 
-#: class_Publikationen.php:298 class_Publikationen_1.php:292
+#: class_Publikationen.php:295
 msgid "O.T."
 msgstr "no title"
 
-#: class_Publikationen.php:310 class_Publikationen_1.php:293
+#: class_Publikationen.php:306
 msgid "O.O."
 msgstr "n.p."
 
-#: class_Publikationen.php:311 class_Publikationen.php:313
+#: class_Publikationen.php:307 class_Publikationen.php:309
+#: class_Publikationen.php:313 class_Publikationen.php:314
 #: class_Publikationen.php:316 class_Publikationen.php:317
-#: class_Publikationen.php:319 class_Publikationen.php:320
-#: class_Publikationen.php:321 class_Publikationen.php:322
-#: class_Publikationen.php:323 class_Publikationen.php:324
-#: class_Publikationen.php:325 class_Publikationen.php:332
-#: class_Publikationen.php:333 class_Publikationen_1.php:294
-#: class_Publikationen_1.php:296 class_Publikationen_1.php:299
-#: class_Publikationen_1.php:300 class_Publikationen_1.php:301
-#: class_Publikationen_1.php:302 class_Publikationen_1.php:303
-#: class_Publikationen_1.php:304 class_Publikationen_1.php:305
-#: class_Publikationen_1.php:306 class_Publikationen_1.php:307
-#: class_Publikationen_1.php:308 class_Publikationen_1.php:310
-#: class_Publikationen_1.php:311
+#: class_Publikationen.php:318 class_Publikationen.php:319
+#: class_Publikationen.php:320 class_Publikationen.php:321
+#: class_Publikationen.php:322 class_Publikationen.php:329
+#: class_Publikationen.php:330 class_Formatter.php:68
 msgid "O.A."
 msgstr "n/s"
 
-#: class_Publikationen.php:312 class_Publikationen_1.php:295
+#: class_Publikationen.php:308
 msgid "O.J."
 msgstr "n.d."
 
-#: class_Publikationen.php:334 class_Publikationen_1.php:312
+#: class_Publikationen.php:331
 msgid "Nicht verfügbar"
 msgstr "Not availible"
 
+#: class_Publikationen.php:355 class_Publikationen.php:380
+#: class_Publikationen.php:452 class_Publikationen.php:484
+msgctxt "Abkürzung für \"Band\" bei Publikationen"
+msgid "Bd."
+msgstr "Vol."
+
 # @ fau-cris
-#: class_Publikationen.php:360 class_Publikationen.php:389
-#: class_Publikationen.php:459 class_Publikationen.php:491
-#: class_Publikationen_1.php:349 class_Publikationen_1.php:367
-#: class_Publikationen_1.php:403 class_Publikationen_1.php:421
+#: class_Publikationen.php:358 class_Publikationen.php:455
+#: class_Publikationen.php:485
 msgid "Seiten"
 msgstr "pages"
 
-#: class_Publikationen.php:373 class_Publikationen.php:426
-#: class_Publikationen.php:442 class_Publikationen_1.php:328
-#: class_Publikationen_1.php:358
+#: class_Publikationen.php:370 class_Publikationen.php:422
+#: class_Publikationen.php:438
 msgid "Hrsg."
-msgstr "Ed."
+msgstr "ed."
+
+#: class_Publikationen.php:377 class_Publikationen.php:398
+msgctxt "Abkürzung für \"Seite\" bei Publikationen"
+msgid "S."
+msgstr "p."
 
 # @ fau-cris
-#: class_Tools.php:95
+#: class_Tools.php:130
 msgid "Fehler beim Einlesen der Daten: Bitte überprüfen Sie die CRIS-ID."
 msgstr "Error loading data. Please check the CRIS ID."
 
-#: class_Projekte.php:66 class_Projekte.php:94 class_Projekte.php:121
-#: class_Projekte.php:169
+#: class_Tools.php:441
+msgid "seit"
+msgstr "since"
+
+#: class_Tools.php:443
+msgid "bis"
+msgstr "till"
+
+#: class_Projekte.php:57 class_Projekte.php:85 class_Projekte.php:112
+#: class_Projekte.php:157
 msgid "Es wurden leider keine Projekte gefunden."
 msgstr "No projects found."
 
-#: class_Projekte.php:254 class_Projekte.php:325
+#: class_Projekte.php:242 class_Projekte.php:311
 msgid "Titel des Gesamtprojektes"
 msgstr "Overall project"
 
-#: class_Projekte.php:256
+#: class_Projekte.php:244
 msgid "Projektleitung"
 msgstr "Project leader"
 
-#: class_Projekte.php:260
+#: class_Projekte.php:248
 msgid "Projektbeteiligte"
 msgstr "Project members"
 
-#: class_Projekte.php:264
+#: class_Projekte.php:252
 msgid "Projektstart"
 msgstr "Start date"
 
-#: class_Projekte.php:266
+#: class_Projekte.php:254
 msgid "Projektende"
 msgstr "End date"
 
-#: class_Projekte.php:268 class_Projekte.php:331
+#: class_Projekte.php:256 class_Projekte.php:315
 msgid "Mittelgeber"
 msgstr "Funding source"
 
-#: class_Projekte.php:272 class_Projekte.php:335
+#: class_Projekte.php:260 class_Projekte.php:319
 msgid "URL"
 msgstr "URL"
 
-#: class_Projekte.php:279 class_Projekte.php:344
+#: class_Projekte.php:267 class_Projekte.php:328
 msgid "Abstract"
 msgstr "Abstract"
 
 #. ID
-#: class_Projekte.php:283
+#: class_Projekte.php:271
 msgid "Publikationen"
 msgstr "Publications"
 
-#: class_Projekte.php:327
+#: class_Projekte.php:313
 msgid "Laufzeit"
 msgstr "Term"
 
-#: class_Projekte.php:344
+#: class_Projekte.php:328
 msgid "Abstract anzeigen"
 msgstr "Show abstract"
 
-#: class_Projekte.php:349
+#: class_Projekte.php:333
 msgid "Zur Projektseite auf cris.fau.de wechseln"
 msgstr "Go to project page on cris.fau.de"
 
-#: class_Projekte.php:349
+#: class_Projekte.php:333
 msgid "Mehr Informationen"
 msgstr "More information"
 
 # @ fau-cris
-#: fau-cris.php:498
+#: fau-cris.php:578 fau-cris.php:800
 msgid ""
 "Bitte geben Sie die CRIS-ID der Organisation, Person oder "
 "Publikation/Auszeichnung an."
 msgstr ""
 "Please provide a CRIS ID (from an organisation, a person or a "
 "publication/award)."
+
+#: class_Patente.php:57 class_Patente.php:79 class_Patente.php:112
+#: class_Patente.php:162
+msgid "Es wurden leider keine Patente gefunden."
+msgstr "No patents found."
+
+#: class_Patente.php:95 class_Aktivitaeten.php:101
+msgid "Ohne Jahr"
+msgstr "no date"
+
+#: class_Patente.php:245 class_Aktivitaeten.php:380
+msgid "Detailansicht auf cris.fau.de in neuem Fenster &ouml;ffnen"
+msgstr "View details on cris.fau.de in new window"
+
+#: class_Patente.php:252
+msgid "Eintrag auf DEPATISnet in neuem Fenster &ouml;ffnen"
+msgstr "View DEPATISnet entry in new window"
+
+#: class_Patente.php:260
+msgid "Erfinder"
+msgstr "Inventor(s)"
+
+#: class_Aktivitaeten.php:34
+msgid ""
+"Bitte geben Sie die CRIS-ID der Organisation, Person oder "
+"Forschungsaktivität an."
+msgstr ""
+"Please provide a CRIS ID (from an organisation, a person, a publication or "
+"an activity)."
+
+#: class_Aktivitaeten.php:60 class_Aktivitaeten.php:85
+#: class_Aktivitaeten.php:123 class_Aktivitaeten.php:176
+msgid "Es wurden leider keine Aktivitäten gefunden."
+msgstr "No activities found."
+
+#: class_Aktivitaeten.php:392
+msgid "Link in neuem Fenster &ouml;ffnen"
+msgstr "Open Link in new window."
 
 #. Name of the plugin
 msgid "FAU CRIS"
