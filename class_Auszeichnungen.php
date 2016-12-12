@@ -11,17 +11,28 @@ class Auszeichnungen {
     public $output;
 
     public function __construct($einheit = '', $id = '') {
-        new CRIS();
-        $this->cms = 'wbk';
-        $this->options = CRIS::ladeConf();
-        $this->orgNr = $this->options['CRISOrgNr'];
-        $this->order = explode("|", $this->options['Reihenfolge_Auszeichnungen']);
-        $this->cris_award_link = isset($this->options['Personeninfo_Univis_Auszeichnungen']) ? $this->options['Personeninfo_Univis_Auszeichnungen'] : 'none';
-        $this->pathPersonenseiteUnivis = $this->options['Pfad_Personenseite_Univis'] . '/';
+        if (strpos($_SERVER['PHP_SELF'], "vkdaten/tools/")) {
+            $this->cms = 'wbk';
+            $this->options = CRIS::ladeConf();
+            $this->pathPersonenseiteUnivis = $this->options['Pfad_Personenseite_Univis'] . '/';
+        } else {
+            $this->cms = 'wp';
+            $this->options = (array) get_option('_fau_cris');
+            $this->pathPersonenseiteUnivis = '/person/';
+        }
+        $this->orgNr = $this->options['cris_org_nr'];
         $this->suchstring = '';
+        $this->univis = NULL;
+
+
+        $this->order = $this->options['cris_award_order'];
+        $this->cris_award_link = isset($this->options['cris_award_link']) ? $this->options['cris_award_link'] : 'none';
+        if ($this->cms == 'wbk' && $this->cris_award_link == 'person') {
+            $this->univis = Tools::get_univis();
+        }
 
         if ((!$this->orgNr || $this->orgNr == 0) && $id == '') {
-            print '<p><strong>' . __('Bitte geben Sie die CRIS-ID der Organisation, Person oder Publikation an.', 'fau-cris') . '</strong></p>';
+            print '<p><strong>' . __('Bitte geben Sie die CRIS-ID der Organisation, Person oder Auszeichnung an.', 'fau-cris') . '</strong></p>';
             return;
         }
         if (in_array($einheit, array("person", "orga", "award", "awardnameid"))) {
@@ -33,25 +44,6 @@ class Auszeichnungen {
             $this->einheit = "orga";
         }
 
-        $univis = NULL;
-        if ($this->cms == 'wbk' && $this->cris_award_link == 'person') {
-            $this->univisID = Tools::get_univis_id();
-            // Ich liebe UnivIS: Welche Abfrage liefert mehr Ergebnisse (hängt davon ab, wie die
-            // Mitarbeiter der Institution zugeordnet wurden...)?
-            $url1 = "http://univis.uni-erlangen.de/prg?search=departments&number=" . $this->univisID . "&show=xml";
-            $daten1 = Tools::XML2obj($url1);
-            $num1 = count($daten1->Person);
-            $url2 = "http://univis.uni-erlangen.de/prg?search=persons&department=" . $this->univisID . "&show=xml";
-            $daten2 = Tools::XML2obj($url2);
-            $num2 = count($daten2->Person);
-            $daten = $num1 > $num2 ? $daten1 : $daten2;
-
-            foreach ($daten->Person as $person) {
-                $univis[] = array('firstname' => (string) $person->firstname,
-                                   'lastname' => (string) $person->lastname);
-            }
-        }
-        $this->univis = $univis;
     }
 
     /*
@@ -86,7 +78,7 @@ class Auszeichnungen {
      * Ausgabe aller Auszeichnungen nach Jahren gegliedert
      */
 
-    public function awardsNachJahr($year = '', $start = '', $type = '', $awardnameid = '', $showname = 1, $showyear = 0, $showawardname = 1, $display = 'list') {
+    public function awardsNachJahr($year = '', $start = '', $type = '', $awardnameid = '', $showname = 1, $showyear = 0, $showawardname = 1, $display = 'list', $order2 = 'year') {
         $awardArray = $this->fetch_awards($year, $start, $type, $awardnameid);
 
         if (!count($awardArray)) {
@@ -94,15 +86,21 @@ class Auszeichnungen {
             return $output;
         }
 
+        if ($order2 == 'author') {
         $formatter = new CRIS_formatter("year award", SORT_DESC, "award_preistraeger", SORT_ASC);
+        } else {
+            $formatter = new CRIS_formatter("year award", SORT_DESC, "award_preistraeger", SORT_ASC);
+        }
         $awardList = $formatter->execute($awardArray);
 
         $output = '';
 
         foreach ($awardList as $array_year => $awards) {
+            if (count($awards) < 1)
+                return $output;
             if (empty($year)) {
                 $output .= '<h3 class="clearfix clear">';
-                $output .=!empty($array_year) ? $array_year : __('Ohne Jahr', 'fau-cris');
+                $output .= $array_year;
                 $output .= '</h3>';
             }
             if ($display == 'gallery') {
@@ -119,7 +117,7 @@ class Auszeichnungen {
      * Ausgabe aller Auszeichnungen nach Auszeichnungstypen gegliedert
      */
 
-    public function awardsNachTyp($year = '', $start = '', $type = '', $awardnameid = '', $showname = 1, $showyear = 0, $showawardname = 1, $display = '') {
+    public function awardsNachTyp($year = '', $start = '', $type = '', $awardnameid = '', $showname = 1, $showyear = 0, $showawardname = 1, $display = '', $order2 = 'year') {
         $awardArray = $this->fetch_awards($year, $start, $type, $awardnameid);
 
         if (!count($awardArray)) {
@@ -129,26 +127,26 @@ class Auszeichnungen {
 
         // Auszeichnungstypen sortieren
         $order = $this->order;
-        if ($order[0] != '' && array_key_exists($order[0], CRIS_Dicts::$awardNames)) {
+        if ($order[0] != '' && array_search($order[0], array_column(CRIS_Dicts::$awards, 'short'))) {
             foreach ($order as $key => $value) {
-                $order[$key] = Tools::getAwardName($value, "de");
+                $order[$key] = Tools::getType('awards', $value);
             }
         } else {
-            $order = array();
-            foreach (CRIS_Dicts::$awardOrder as $value) {
-                $order[] = Tools::getAwardName($value, "de");
+            $order = Tools::getOrder('awards');
             }
-        }
 
         // sortiere nach Typenliste, innerhalb des Typs nach Name aufwärts sortieren
-        $formatter = new CRIS_formatter("type of award", array_values($order), "award_preistraeger", SORT_ASC);
+        if ($order2 == 'name') {
+            $formatter = new CRIS_formatter("type of award", SORT_DESC, "award_preistraeger", SORT_ASC);
+        } else {
+            $formatter = new CRIS_formatter("type of award", SORT_DESC, "year award", SORT_DESC);
+        }
         $awardList = $formatter->execute($awardArray);
-
         $output = '';
 
         foreach ($awardList as $array_type => $awards) {
             if (empty($type)) {
-                $title = Tools::getawardTitle($array_type, get_locale());
+                $title = Tools::getTitle('awards', $array_type, get_locale());
                 $output .= '<h3 class="clearfix clear">';
                 $output .= $title;
                 $output .= "</h3>";
@@ -238,23 +236,7 @@ class Auszeichnungen {
             $preistraeger_firstname = explode(" ", $award['award_preistraeger'])[0];
             $preistraeger_lastname = array_pop((array_slice(explode(" ", $award['award_preistraeger']), -1)));
             $preistraeger_id = $award['relpersid'];
-            switch ($this->cris_award_link) {
-                case 'cris' :
-                    if (is_numeric($preistraeger_id)) {
-                        $link_pre = "<a href=\"https://cris.fau.de/converis/publicweb/Person/" . $preistraeger_id . "\" class=\"extern\">";
-                        $link_post = "</a>";
-                        $award_preistraeger = $link_pre . $award_preistraeger . $link_post;
-                    }
-                    break;
-                case 'person':
-                    if (Tools::person_exists($this->cms, $preistraeger_firstname, $preistraeger_lastname, $this->univis)) {
-                $link_pre = "<a href=\"" . $this->pathPersonenseiteUnivis . Tools::person_slug($this->cms, $preistraeger_firstname, $preistraeger_lastname) . "\">";
-                $link_post = "</a>";
-                $award_preistraeger = $link_pre . $award_preistraeger . $link_post;
-            }
-                    break;
-                default:
-            }
+            $award_preistraeger = Tools::get_person_link($preistraeger_id, $preistraeger_firstname, $preistraeger_lastname, $this->cris_award_link, $this->cms, $this->pathPersonenseiteUnivis, $this->univis, 1);
 
             if (!empty($award['award_name'])) {
                 $award_name = $award['award_name'];
@@ -271,17 +253,17 @@ class Auszeichnungen {
             $awardlist .= "<li>";
             if ($year == 1 && $name == 1) {
                 $awardlist .= (!empty($award_preistraeger) ? $award_preistraeger : "")
-                        . ($awardname == 1 ? ": <strong>" . $award_name . "</strong> "
+                        . (($awardname == 1) ? ": <strong>" . $award_name . "</strong> "
                         . ((isset($organisation) && $award['type of award'] != 'Akademie-Mitgliedschaft') ? " (" . $organisation . ")" : "") : "" )
                         . (!empty($award_year) ? " &ndash; " . $award_year : "");
             } elseif ($year == 1 && $name == 0) {
                 $awardlist .= (!empty($award_year) ? $award_year . ": " : "")
-                        . "<strong>" . $award_name . "</strong>"
-                        . ((isset($organisation) && $award['type of award'] != 'Akademie-Mitgliedschaft') ? " (" . $organisation . ")" : "");
+                        . (($awardname == 1) ? "<strong>" . $award_name . "</strong> "
+                            . ((isset($organisation) && $award['type of award'] != 'Akademie-Mitgliedschaft') ? " (" . $organisation . ")" : "") : "" );
             } elseif ($year == 0 && $name == 1) {
                 $awardlist .= (!empty($award_preistraeger) ? $award_preistraeger . ": " : "")
-                        . "<strong>" . $award_name . "</strong>"
-                        . ((isset($organisation) && $award['type of award'] != 'Akademie-Mitgliedschaft') ? " (" . $organisation . ")" : "");
+                        . (($awardname == 1) ? "<strong>" . $award_name . "</strong> "
+                            . ((isset($organisation) && $award['type of award'] != 'Akademie-Mitgliedschaft') ? " (" . $organisation . ")" : "") : "" );
             } else {
                 $awardlist .= "<strong>" . $award_name . "</strong>"
                         . ((isset($organisation) && $award['type of award'] != 'Akademie-Mitgliedschaft') ? " (" . $organisation . ")" : "");
@@ -341,8 +323,8 @@ class Auszeichnungen {
             $awardlist .= "<li>";
             $awardlist .= (isset($award_pic['png']) && strlen($award_pic['png']) > 30) ? "<img alt=\"Portrait " . $award['award_preistraeger'] . "\" src=\"" . $award_pic['png'] . "\"  />" : "<div class=\"noimage\">&nbsp</div>";
             $awardlist .= $name == 1 ? $award_preistraeger : '';
-            $awardlist .= $awardname == 1 ? "<br /><strong>" . $award_name . "</strong> " : '';
-            $awardlist .= (isset($organisation) && $award['type of award'] != 'Akademie-Mitgliedschaft') ? " (" . $organisation . ")" : "";
+            $awardlist .= (($awardname == 1) ? "<strong>" . $award_name . "</strong> "
+                            . ((isset($organisation) && $award['type of award'] != 'Akademie-Mitgliedschaft') ? " (" . $organisation . ")" : "") : "" );
             $awardlist .= ($year == 1 && !empty($award_year)) ? "<br />" . $award_year : '';
             $awardlist .= (isset($award_pic['desc']) && strlen($award_pic['desc']) > 0) ? "<br /><span class=\"imgsrc\">(" . _x('Bild:', 'Wird bei Galerien vor die Bildquelle geschrieben.', 'fau-cris') . " " . $award_pic['desc'] . ")</span>" : "";
             $awardlist .= "</li>";

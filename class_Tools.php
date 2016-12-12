@@ -15,66 +15,101 @@ class Tools {
         return $acronym;
     }
 
-    public static function getPubName($pub, $lang) {
-        if (array_key_exists($lang, CRIS_Dicts::$pubNames[$pub])) {
-            return CRIS_Dicts::$pubNames[$pub][$lang];
+    public static function getOrder ($object) {
+        switch ($object) {
+            case 'publications':
+                $search = CRIS_Dicts::$publications;
+                break;
+            case 'awards':
+                $search = CRIS_Dicts::$awards;
+                break;
+            case 'projects':
+                $search = CRIS_Dicts::$projects;
+                break;
+            case 'patents':
+                $search = CRIS_Dicts::$patents;
+                break;
+            case 'activities':
+                $search = CRIS_Dicts::$activities;
+                break;
         }
-        return CRIS_Dicts::$pubNames[$pub]['en'];
+        foreach ($search as $k => $v) {
+            $order[$v['order']] = $k;
+        }
+        ksort($order);
+        return $order;
     }
 
-    public static function getpubTitle($pub, $lang) {
-        if (array_key_exists($lang, CRIS_Dicts::$pubTitles[$pub])) {
-            return CRIS_Dicts::$pubTitles[$pub][$lang];
+    public static function getType($object, $short) {
+        switch ($object) {
+            case 'publications':
+                $search = CRIS_Dicts::$publications;
+                break;
+            case 'awards':
+                $search = CRIS_Dicts::$awards;
+                break;
+            case 'projects':
+                $search = CRIS_Dicts::$projects;
+                break;
+            case 'patents':
+                $search = CRIS_Dicts::$patents;
+                break;
+            case 'activities':
+                $search = CRIS_Dicts::$activities;
+                break;
         }
-        if (strpos($lang, 'de_') === 0) {
-            return CRIS_Dicts::$pubTitles[$pub]['de_DE'];
+        foreach ($search as $k => $v) {
+            if($v['short'] == $short)
+                return $k;
         }
-        return CRIS_Dicts::$pubTitles[$pub]['en_US'];
+
     }
 
-    public static function getAwardName($award, $lang) {
-        if (array_key_exists($lang, CRIS_Dicts::$awardNames[$award])) {
-            return CRIS_Dicts::$awardNames[$award][$lang];
-        }
-        return CRIS_Dicts::$awardNames[$award]['en'];
-    }
-
-    public static function getawardTitle($award, $lang) {
-        if (array_key_exists($lang, CRIS_Dicts::$awardTitles[$award])) {
-            return CRIS_Dicts::$awardTitles[$award][$lang];
-        }
-        if (strpos($lang, 'de_') === 0) {
-            return CRIS_Dicts::$awardTitles[$award]['de_DE'];
-        }
-        return CRIS_Dicts::$awardTitles[$award]['en_US'];
-    }
-
-    public static function getProjName($proj, $lang) {
+    public static function getName($object, $type, $lang) {
         $lang = strpos($lang, 'de') === 0 ? 'de' : 'en';
-        if (array_key_exists($lang, CRIS_Dicts::$projNames[$proj])) {
-            return CRIS_Dicts::$projNames[$proj][$lang];
+        $search = array();
+        switch ($object) {
+            case 'publications':
+                $search = CRIS_Dicts::$publications;
+                break;
+            case 'awards':
+                $search = CRIS_Dicts::$awards;
+                break;
+            case 'projects':
+                $search = CRIS_Dicts::$projects;
+                break;
+            case 'patents':
+                $search = CRIS_Dicts::$patents;
+                break;
+            case 'activities':
+                $search = CRIS_Dicts::$activities;
+                break;
         }
-        return CRIS_Dicts::$projNames[$proj]['en'];
+        return $search[$type][$lang]['name'];
     }
 
-    public static function getProjTitle($proj, $lang) {
-        if (array_key_exists($lang, CRIS_Dicts::$projTitles[$proj])) {
-            return CRIS_Dicts::$projTitles[$proj][$lang];
-        }
-        if (strpos($lang, 'de_') === 0) {
-            return CRIS_Dicts::$projTitles[$proj]['de_DE'];
-        }
-        return CRIS_Dicts::$projTitles[$proj]['en_US'];
-    }
-
-    public static function getprojTranslation($proj, $lang) {
+    public static function getTitle($object, $name, $lang) {
         $lang = strpos($lang, 'de') === 0 ? 'de' : 'en';
-        foreach (CRIS_Dicts::$projNames as $name) {
-            if ($name['de'] == $proj || $name['en'] == $proj) {
-                return $name[$lang];
-            }
+        switch ($object) {
+            case 'publications':
+                $search = CRIS_Dicts::$publications;
+                break;
+            case 'awards':
+                $search = CRIS_Dicts::$awards;
+                break;
+            case 'projects':
+                $search = CRIS_Dicts::$projects;
+                break;
+            case 'patents':
+                $search = CRIS_Dicts::$patents;
+                break;
+            case 'activities':
+                $search = CRIS_Dicts::$activities;
+                break;
         }
+        return $search[$name][$lang]['title'];
     }
+
 
     public static function XML2obj($xml_url) {
         $ch = curl_init();
@@ -207,9 +242,9 @@ class Tools {
         if ($start !== '' && $start !== NULL)
             $filter['publyear__ge'] = $start;
         if ($type !== '' && $type !== NULL) {
-            $pubTyp = Tools::getPubName($type, "en");
+            $pubTyp = self::getType('publications', $type);
             if (empty($pubTyp)) {
-                $output .= '<p>' . __('Falscher Parameter für Publikationstyp', '') . '</p>';
+                $output = '<p>' . __('Falscher Parameter für Publikationstyp', '') . '</p>';
                 return $output;
             }
             $filter['publication type__eq'] = $pubTyp;
@@ -230,8 +265,12 @@ class Tools {
         if ($start !== '' && $start !== NULL)
             $filter['year award__ge'] = $start;
         if ($type !== '' && $type !== NULL) {
-            $type = Tools::getAwardName($type, "de");
-            $filter['type of award__eq'] = $type;
+            $awardTyp = self::getType('awards', $type);
+            if (empty($awardTyp)) {
+                $output .= '<p>' . __('Falscher Parameter für Auszeichnungstyp', '') . '</p>';
+                return $output;
+            }
+            $filter['type of award__eq'] = $awardTyp;
         }
         if (count($filter))
             return $filter;
@@ -249,7 +288,7 @@ class Tools {
         if ($start !== '' && $start !== NULL)
             $filter['startyear__ge'] = $start;
         if ($type !== '' && $type !== NULL) {
-            $projTyp = Tools::getProjName($type, "en");
+            $projTyp = self::getType('projects', $type);
             if (empty($projTyp)) {
                 $output .= '<p>' . __('Falscher Parameter für Projekttyp', '') . '</p>';
                 return $output;
@@ -262,20 +301,86 @@ class Tools {
     }
 
     /*
+     * Array zur Definition des Filters für Patente
+     */
+
+    public static function patent_filter($year = '', $start = '', $type = '') {
+        $filter = array();
+        if ($year !== '' && $year !== NULL)
+            $filter['startyear__eq'] = $year;
+        if ($start !== '' && $start !== NULL)
+            $filter['startyear__ge'] = $start;
+        if ($type !== '' && $type !== NULL) {
+            $patTyp = self::getType('patents', $type);
+            if (empty($patTyp)) {
+                $output .= '<p>' . __('Falscher Parameter für Patenttyp', '') . '</p>';
+                return $output;
+            }
+            $filter['patenttype__eq'] = $patTyp;
+        }
+        if (count($filter))
+            return $filter;
+        return null;
+    }
+
+    /*
+     * Array zur Definition des Filters für Patente
+     */
+
+    public static function activity_filter($year = '', $start = '', $type = '') {
+        $filter = array();
+        if ($year !== '' && $year !== NULL)
+            $filter['startyear__eq'] = $year;
+        if ($start !== '' && $start !== NULL)
+            $filter['startyear__ge'] = $start;
+        if ($type !== '' && $type !== NULL) {
+            $patTyp = self::getType('activities', $type);
+            if (empty($patTyp)) {
+                $output .= '<p>' . __('Falscher Parameter für Aktivitätstyp', '') . '</p>';
+                return $output;
+            }
+            $filter['type of activity__eq'] = $patTyp;
+        }
+        if (count($filter))
+            return $filter;
+        return null;
+    }
+
+    /*
      * Anbindung an UnivIS-/FAU-Person-Plugin
      */
 
-    public static function person_exists($cms = '', $firstname = '', $lastname = '', $univis = array()) {
+    public static function get_univis() {
+        $univisID = self::get_univis_id();
+        // Ich liebe UnivIS: Welche Abfrage liefert mehr Ergebnisse (hängt davon ab, wie die
+        // Mitarbeiter der Institution zugeordnet wurden...)?
+        $url1 = "http://univis.uni-erlangen.de/prg?search=departments&number=" . $univisID . "&show=xml";
+        $daten1 = self::XML2obj($url1);
+        $num1 = count($daten1->Person);
+        $url2 = "http://univis.uni-erlangen.de/prg?search=persons&department=" . $univisID . "&show=xml";
+        $daten2 = self::XML2obj($url2);
+        $num2 = count($daten2->Person);
+        $daten = $num1 > $num2 ? $daten1 : $daten2;
+
+        foreach ($daten->Person as $person) {
+            $univis[] = array('firstname' => (string) $person->firstname,
+                               'lastname' => (string) $person->lastname);
+        }
+        return $univis;
+    }
+
+    public static function person_exists($cms = '', $firstname = '', $lastname = '', $univis) {
         if ($cms == 'wp') {
             // WordPress
             return self::person_slug($cms, $firstname, $lastname);
-        } else {
+        }
+        if ($cms == 'wbk') {
             // Webbaukasten
             foreach ($univis as $_p) {
                 if (strpos($_p['firstname'], $firstname) !== false && strpos($_p['lastname'], $lastname) !== false) {
                     return true;
                 }
-           }
+            }
         }
     }
 
@@ -309,7 +414,7 @@ class Tools {
                 $univisID = $arr_opts[1];
             }
         }
-	fclose($fh);
+        fclose($fh);
         return $univisID;
     }
 
@@ -323,7 +428,7 @@ class Tools {
                 } else {
                     $link_pre = '';
                     $link_post = '';
-}
+                }
                 break;
             case 'person':
                 if (self::person_exists($cms, $firstname, $lastname, $univis)) {
@@ -341,6 +446,23 @@ class Tools {
         $name = $inv == 0 ? $firstname . " " . $lastname : $lastname . " " . $firstname;
         $person = "<span class=\"author\" itemprop=\"author\">" . $link_pre . $name . $link_post . "</span>";
         return $person;
+    }
+
+    public static function make_date ($start, $end) {
+        setlocale(LC_TIME, get_locale());
+        $date = '';
+        if ($start != '')
+            $start = strftime('%x', strtotime($start));
+        if ($end != '')
+            $end = strftime('%x', strtotime($end));
+        if ($start !='' && $end != '') {
+            $date = $start . " - " . $end;
+        } elseif ($start != '' && $end =='') {
+            $date = __('seit', 'fau-cris') . " " . $start;
+        } elseif ($start == '' && $end != '') {
+            $date = __('bis', 'fau-cris') . " " . $end;
+        }
+        return $date;
     }
 
 }

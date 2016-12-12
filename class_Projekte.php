@@ -12,14 +12,24 @@ class Projekte {
 
     public function __construct($einheit = '', $id = '') {
 
-        $this->cms = 'wbk';
-        $this->options = CRIS::ladeConf();
-        $this->orgNr = $this->options['CRISOrgNr'];
-        $this->order = isset($this->options['Reihenfolge_Projekte']) ? explode("|", $this->options['Reihenfolge_Publikationen']) : CRIS_Dicts::$projOrder;
-        $this->cris_project_link = isset($this->options['cris_project_link']) ? $this->options['cris_project_link'] : 0;
-        $this->cris_project_link = isset($this->options['Personeninfo_Univis_Projekte']) ? $this->options['Personeninfo_Univis_Projekte'] : 0;
-        $this->pathPersonenseiteUnivis = $this->options['Pfad_Personenseite_Univis'] . '/';
+        if (strpos($_SERVER['PHP_SELF'], "vkdaten/tools/")) {
+            $this->cms = 'wbk';
+            $this->options = CRIS::ladeConf();
+            $this->pathPersonenseiteUnivis = $this->options['Pfad_Personenseite_Univis'] . '/';
+        } else {
+            $this->cms = 'wp';
+            $this->options = (array) get_option('_fau_cris');
+            $this->pathPersonenseiteUnivis = '/person/';
+        }
+        $this->orgNr = $this->options['cris_org_nr'];
         $this->suchstring = '';
+        $this->univis = NULL;
+
+        $this->order = $this->options['cris_project_order'];
+        $this->cris_project_link = isset($this->options['cris_project_link']) ? $this->options['cris_project_link'] : 'none';
+        if ($this->cms == 'wbk' && $this->cris_project_link == 'person') {
+            $this->univis = Tools::get_univis();
+        }
 
         if ((!$this->orgNr || $this->orgNr == 0) && $id == '') {
             print '<p><strong>' . __('Bitte geben Sie die CRIS-ID der Organisation, Person oder Publikation an.', 'fau-cris') . '</strong></p>';
@@ -34,26 +44,6 @@ class Projekte {
             $this->einheit = "orga";
         }
 
-        $univis = NULL;
-        if ($this->cms == 'wbk' && $this->cris_award_link == 1) {
-            //if ($this->cms == 'wbk' && $this->cris_award_link == 'person') {
-            $this->univisID = Tools::get_univis_id();
-            // Ich liebe UnivIS: Welche Abfrage liefert mehr Ergebnisse (hängt davon ab, wie die
-            // Mitarbeiter der Institution zugeordnet wurden...)?
-            $url1 = "http://univis.uni-erlangen.de/prg?search=departments&number=" . $this->univisID . "&show=xml";
-            $daten1 = Tools::XML2obj($url1);
-            $num1 = count($daten1->Person);
-            $url2 = "http://univis.uni-erlangen.de/prg?search=persons&department=" . $this->univisID . "&show=xml";
-            $daten2 = Tools::XML2obj($url2);
-            $num2 = count($daten2->Person);
-            $daten = $num1 > $num2 ? $daten1 : $daten2;
-
-            foreach ($daten->Person as $person) {
-                $univis[] = array('firstname' => (string) $person->firstname,
-                    'lastname' => (string) $person->lastname);
-            }
-        }
-        $this->univis = $univis;
     }
 
     /*
@@ -125,16 +115,13 @@ class Projekte {
 
         // Publikationstypen sortieren
         $order = $this->order;
-        if ($order[0] != '' && array_key_exists($order[0], CRIS_Dicts::$projNames)) {
+        if ($order[0] != '' && array_search($order[0], array_column(CRIS_Dicts::$projects, 'short'))) {
             foreach ($order as $key => $value) {
-                $order[$key] = Tools::getProjName($value, "en");
+                $order[$key] = Tools::getType('projects', $value);
             }
         } else {
-            $order = array();
-            foreach (CRIS_Dicts::$projOrder as $value) {
-                $order[] = Tools::getProjName($value, "en");
+            $order = Tools::getOrder('projects');
             }
-        }
 
         // sortiere nach Typenliste, innerhalb des Jahres nach Jahr abwärts sortieren
         $formatter = new CRIS_formatter("project type", array_values($order), "cfstartdate", SORT_DESC);
@@ -144,7 +131,7 @@ class Projekte {
         foreach ($projList as $array_type => $projects) {
             // Zwischenüberschrift (= Projecttyp), außer wenn nur ein Typ gefiltert wurde
             if (empty($type)) {
-                $title = Tools::getProjTitle($array_type, get_locale());
+                $title = Tools::getTitle('projects', $array_type, get_locale());
                 $output .= "<h3>";
                 $output .= $title;
                 $output .= "</h3>";
@@ -222,7 +209,7 @@ class Projekte {
 
             $id = $project['ID'];
             $title = ($lang == 'en' && !empty($project['cftitle_en'])) ? $project['cftitle_en'] : $project['cftitle'];
-            $type = Tools::getprojTranslation($project['project type'], get_locale());
+            $type = Tools::getName('projects', $project['project type'], get_locale());
             $projlist .= "<h3>" . $title . "</h3>";
 
             if (!empty($type))
@@ -244,7 +231,7 @@ class Projekte {
                 setlocale(LC_TIME, get_locale());
                 $start = $project['cfstartdate'];
                 $start = strftime('%x', strtotime($start));
-                $end = !empty($project['cfenddate']) ? $project['cfenddate'] : $project['virtualenddate'];
+                $end = $project['cfenddate'];
                 $end = strftime('%x', strtotime($end));
                 $funding = $this->get_project_funding($id);
                 $url = $project['cfuri'];
@@ -303,7 +290,7 @@ class Projekte {
 
             $id = $project['ID'];
             $title = ($lang == 'en' && !empty($project['cftitle_en'])) ? $project['cftitle_en'] : $project['cftitle'];
-            $type = Tools::getprojTranslation($project['project type'], get_locale());
+            $type = Tools::getName('projects', $project['project type'], get_locale());
 
             $projlist .= "<li>";
             $projlist .= "<span class=\"project-title\">" . $title . "</span>";
@@ -313,21 +300,17 @@ class Projekte {
             if (!in_array('details', $hide)) {
                 $parentprojecttitle = ($lang == 'en' && !empty($project['parentprojecttitle_en'])) ? $project['parentprojecttitle_en'] : $project['parentprojecttitle'];
             //$acronym = $project['cfacro'];
-                setlocale(LC_TIME, get_locale());
                 $start = $project['cfstartdate'];
-                $start = strftime('%x', strtotime($start));
-                $end = !empty($project['cfenddate']) ? $project['cfenddate'] : $project['virtualenddate'];
-                $end = strftime('%x', strtotime($end));
+                $end = $project['cfenddate'];
+                $date = Tools::make_date($start, $end);
                 $funding = $this->get_project_funding($id);
                 $url = $project['cfuri'];
 
                 $projlist .= "<div class=\"project-details\">";
                 if (!empty($parentprojecttitle))
                     $projlist .= "<b>" . __('Titel des Gesamtprojektes', 'fau-cris') . ': </b>' . $parentprojecttitle . '<br />';
-                if (!empty($start) || !empty($end))
-                    $projlist .= "<b>" . __('Laufzeit', 'fau-cris') . ': </b>' . $start;
-                if (!empty($end))
-                    $projlist .= " &ndash; " . $end;
+                if (!empty($date))
+                    $projlist .= "<b>" . __('Laufzeit', 'fau-cris') . ': </b>' . $date;
                 if (!empty($funding)) {
                     $projlist .= "<br /><b>" . __('Mittelgeber', 'fau-cris') . ': </b>';
                     $projlist .= implode(', ', $funding);

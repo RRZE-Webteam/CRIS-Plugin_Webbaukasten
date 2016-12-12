@@ -46,6 +46,8 @@ $hide = isset($_GET['hide']) ? $_GET['hide'] : '';
 $hide = str_replace(" ", "", $hide);
 $hide = explode(",", $hide);
 $role = isset($_GET['role']) ? $_GET['role'] : CRIS_Dicts::$defaults['role'];
+$patent = isset($_GET['patent']) ? $_GET['patent'] : '';
+$activity = isset($_GET['activity']) ? $_GET['activity'] : '';
 
 // Filterkriterien
 if (isset($publication) && $publication != '') {
@@ -60,6 +62,12 @@ if (isset($publication) && $publication != '') {
 } elseif (isset($awardnameid) && $awardnameid != '') {
     $param1 = 'awardnameid';
     $param2 = $awardnameid;
+} elseif (isset($patent) && $patent != '') {
+    $param1 = 'patent';
+    $param2 = $patent;
+} elseif (isset($activity) && activity != '') {
+    $param1 = 'activity';
+    $param2 = $activity;
 } elseif (isset($persid) && $persid != '') {
     $param1 = 'person';
     $param2 = $persid;
@@ -76,50 +84,96 @@ if (isset($publication) && $publication != '') {
 }
 
 // Ausgabe
-if (isset($show) && $show == 'projects') {
-    // Projekte
-    require_once('class_Projekte.php');
-    $liste = new Projekte($param1, $param2);
-
-    if ($project != '') {
-        echo $liste->singleProj($hide);
-    } elseif (!empty($items)) {
-        echo $liste->projListe($year, $start, $type, $items, $hide, $role);
-    } elseif ($orderby == 'type') {
-        echo $liste->projNachTyp($year, $start, $type, $hide, $role);
-    } elseif ($orderby == 'year') {
-        echo $liste->projNachJahr($year, $start, $type, $hide, $role);
-    } else {
-        echo $liste->projListe($year, $start, $type, $items, $hide, $role);
+if (isset($show)) :
+    switch ($show) {
+        //Aktivitäten
+        case 'activities' :
+            require_once('class_Aktivitaeten.php');
+            $liste = new Aktivitaeten($param1, $param2);
+            if ($activity != '') {
+                echo $liste->singleActivity($hide);
+            } elseif (!empty($items)) {
+                echo $liste->projListe($year, $start, $type, $items, $hide, $role);
+            } elseif ($orderby == 'type') {
+                echo $liste->actiNachTyp($year, $start, $type, $hide);
+            } elseif ($orderby == 'year') {
+                echo $liste->actiNachJahr($year, $start, $type, $hide);
+            } else {
+                echo $liste->actiListe($year, $start, $type, $items, $hide);
+            }
+            break;
+        //Patente
+        case 'patents' :
+            require_once('class_Patente.php');
+            $liste = new Patente($param1, $param2);
+            if ($project != '') {
+                echo $liste->singlePatent($showname, $showyear, $showpatentname);
+            } elseif (!empty($items)) {
+                echo $liste->patListe($year, $start, $type, $showname, $showyear, $showpatentname);
+            } elseif ($orderby == 'type') {
+                echo $liste->patNachTyp($year, $start, $type, $showname, $showyear, $showpatentname, $order2);
+            } elseif ($orderby == 'year') {
+                echo $liste->patNachJahr($year, $start, $type, $showname, $showyear, $showpatentname, $order2);
+            } else {
+                echo $liste->patListe($year, $start, $type, $showname, $showyear, $showpatentname);
+            }
+            break;
+        //Projekte
+        case 'projects' :
+            require_once('class_Projekte.php');
+            $liste = new Projekte($param1, $param2);
+            if ($project != '') {
+                echo $liste->singleProj($hide);
+            } elseif (!empty($items)) {
+                echo $liste->projListe($year, $start, $type, $items, $hide, $role);
+            } elseif ($orderby == 'type') {
+                echo $liste->projNachTyp($year, $start, $type, $hide, $role);
+            } elseif ($orderby == 'year') {
+                echo $liste->projNachJahr($year, $start, $type, $hide, $role);
+            } else {
+                echo $liste->projListe($year, $start, $type, $items, $hide, $role);
+            }
+            break;
+        // Awards
+        case 'awards':
+            require_once('class_Auszeichnungen.php');
+            $liste = new Auszeichnungen($param1, $param2, $display);
+            if ($award != '') {
+                echo $liste->singleAward($showname, $showyear, $showawardname, $display);
+            } elseif ($orderby == 'type') {
+                echo $liste->awardsNachTyp($year, $start, $type, $awardnameid, $showname, $showyear, $showawardname, $display);
+            } elseif ($orderby == 'year') {
+                echo $liste->awardsNachJahr($year, $start, $type, $awardnameid, $showname, 0, $showawardname, $display);
+            } else {
+                echo $liste->awardsListe($year, $start, $type, $awardnameid, $showname, $showyear, $showawardname, $display);
+            }
+            break;
+        // Publications
+        default:
+        case 'publications':
+            require_once('class_Publikationen.php');
+            $liste = new Publikationen($param1, $param2);
+            $order1 = 'year';
+            $order2 = '';
+            if (strpos($orderby, ',') !== false) {
+                $orderby = str_replace(' ', '', $orderby);
+                $order1 = explode(',', $orderby)[0];
+                $order2 = explode(',', $orderby)[1];
+            } else {
+                $order1 = $orderby;
+                $order2 = '';
+            }
+            if ($publication != '') {
+                echo $liste->singlePub($quotation);
+            } elseif (!empty($items) || !empty($sortby)) {
+                echo $liste->pubListe($year, $start, $type, $quotation, $items, $sortby);
+            } elseif ($order1 == 'type' || $orderby == 'pubtype') {
+                echo $liste->pubNachTyp($year, $start, $type, $quotation, $order2);
+            } else {
+                echo $liste->pubNachJahr($year, $start, $type, $quotation, $order2);
+            }
+            break;
     }
-} elseif (isset($show) && $show == 'awards') {
-    // Awards
-    require_once('class_Auszeichnungen.php');
-    $liste = new Auszeichnungen($param1, $param2, $display);
-
-    if ($award != '') {
-        echo $liste->singleAward($showname, $showyear, $showawardname, $display);
-    } elseif ($orderby == 'type') {
-        echo $liste->awardsNachTyp($year, $start, $type, $awardnameid, $showname, $showyear, $showawardname, $display);
-    } elseif ($orderby == 'year') {
-        echo $liste->awardsNachJahr($year, $start, $type, $awardnameid, $showname, 0, $showawardname, $display);
-    } else {
-        echo $liste->awardsListe($year, $start, $type, $awardnameid, $showname, $showyear, $showawardname, $display);
-    }
-} else {
-    // Publications
-    require_once('class_Publikationen.php');
-    $liste = new Publikationen($param1, $param2);
-
-    if ($publication != '') {
-        echo $liste->singlePub($quotation);
-    } elseif (!empty($items) || !empty($sortby)) {
-        echo $liste->pubListe($year, $start, $type, $quotation, $items, $sortby);
-    } elseif ($orderby == 'type' || $orderby == 'pubtype') {
-        echo $liste->pubNachTyp($year, $start, $type, $quotation);
-    } else {
-        echo $liste->pubNachJahr($year, $start, $type, $quotation);
-    }
-}
+endif;
 
 include('cache-bottom.php');
