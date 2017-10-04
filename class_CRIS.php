@@ -164,7 +164,7 @@ class CRIS {
         $options["cris_univis"] = $options["Personeninfo_Univis"];
         unset($options["Personeninfo_Univis"]);
 
-        $options["cris_pub_order"] = explode("|", $options['Reihenfolge_Publikationen']);
+        $options["cris_pub_order"] = (!is_array($options["Reihenfolge_Publikationen"]) ? explode("|", $options['Reihenfolge_Publikationen']) : $options['Reihenfolge_Publikationen']);
         unset($options["Reihenfolge_Publikationen"]);
 
         $options["cris_bibtex"] = $options["BibTex"];
@@ -173,22 +173,22 @@ class CRIS {
         $options["cris_award_link"] = $options["Personeninfo_Univis_Auszeichnungen"];
         unset($options["Personeninfo_Univis_Auszeichnungen"]);
 
-        $options["cris_award_order"] = explode("|", $options["Reihenfolge_Auszeichnungen"]);
+        $options["cris_award_order"] = (!is_array($options["Reihenfolge_Auszeichnungen"]) ? explode("|", $options['Reihenfolge_Auszeichnungen']) : $options['Reihenfolge_Auszeichnungen']);
         unset($options["Reihenfolge_Auszeichnungen"]);
 
-        $options["cris_project_order"] = explode("|", $options["Reihenfolge_Projekte"]);
+        $options["cris_project_order"] = (!is_array($options["Reihenfolge_Projekte"]) ? explode("|", $options['Reihenfolge_Projekte']) : $options['Reihenfolge_Projekte']);
         unset($options["Reihenfolge_Projekte"]);
 
         $options["cris_project_link"] = $options["Personeninfo_Univis_Projekte"];
         unset($options["Personeninfo_Univis_Projekte"]);
 
-        $options["cris_patent_order"] =  explode("|", $options["Reihenfolge_Patente"]);
+        $options["cris_patent_order"] = (!is_array($options["Reihenfolge_Patente"]) ? explode("|", $options['Reihenfolge_Patente']) : $options['Reihenfolge_Patente']);
         unset($options["Reihenfolge_Patente"]);
 
         $options["cris_patent_link"] = $options["Personeninfo_Univis_Patente"];
         unset($options["Personeninfo_Univis_Patente"]);
 
-        $options["cris_activities_order"] =  explode("|", $options["Reihenfolge_Aktivitaeten"]);
+        $options["cris_activities_order"] = (!is_array($options["Reihenfolge_Aktivitaeten"]) ? explode("|", $options['Reihenfolge_Aktivitaeten']) : $options['Reihenfolge_Aktivitaeten']);
         unset($options["Reihenfolge_Aktivitaeten"]);
 
         $options["cris_activities_link"] =  $options["Personeninfo_Univis_Aktivitaeten"];
